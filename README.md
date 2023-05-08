@@ -1,7 +1,7 @@
 # enowars7-service-radio
 
-* MP3 player 
-* C++ / Rust/ Python 
+* MP3 + Radio player 
+* Python 
 * Player only checks header and SQL Code inject since DB model is stupid and saves parts of mp3 to read meta data
 * QUIC downgrade to HTTP/1 plaintext (UDP throttling)
 
