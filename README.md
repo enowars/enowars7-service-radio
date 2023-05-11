@@ -10,3 +10,8 @@
 * Real mp3 snippet which stores mp3 decode and encode flag into mp3 (spells flag)
 * Make slightly different behavior for HTTP 
 * Race condition error 
+
+
+
+## Base idea about functionality and vulnerability
+TBA
