@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>MP3 Player</title>
+</head>
+
+<body>
+    <h1>MP3 Player</h1>
+    <form method="POST" action="/" enctype="multipart/form-data">
+        <input type="file" name="mp3-file" accept="audio/mp3">
+        <input type="submit" value="Upload">
+    </form>
+    {% if mp3file %}
+    <h2>{{ mp3file.filename }}</h2>
+    <h3>by {{ mp3file.author }}</h3>
+    <audio src="{{ mp3file.url }}" autoplay controls></audio>
+    {% endif %}
+</body>
+
+</html>
