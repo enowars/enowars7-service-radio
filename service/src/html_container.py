@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+""" This file contains all html parts that need to returned"""
+
+main_html = """<!DOCTYPE html>
 <html>
 <style>
     .cycle {
@@ -137,10 +139,8 @@
                 <form method="POST" action="/" enctype="multipart/form-data">
                     <input type="file" name="mp3-file" accept="audio/mp3">
                     <input type="submit" value="Upload">
-                </form>
-                <h3>by {{ mp3file.author }}</h3>
-                <audio id='{{ mp3file.author }}' src="{{ mp3file.url }}" autoplay controls></audio>
-            </div>
+                </form>"""
+search_html = """
             <h1>Search through already accepted proposals</h1>
             <form method="GET" action="/">
                 <input type="text" name="search" placeholder="Search for MP3 files...">
@@ -150,15 +150,6 @@
             <br>
             <br>
             <h2>Search Results:</h2>
-            {% if search_results %}
-            <ul>
-                {% for result in search_results %}
-                <li><a href="{{ url_for('get_uploaded_file', filename=result) }}">{{ result }}</a></li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>No results found.</p>
-            {% endif %}
         </div>
         <script>
             var video = document.getElementById("my-video");
@@ -192,4 +183,21 @@
         </script>
     </body>
 
-</html>
+</html>"""
+
+
+# Function that sets the pieces together and adds artist and title.
+def set_title_and_artist(title, artist):
+    if artist is None or title is None:
+        return main_html + "</div>" + search_html
+    else:
+        append_html = (
+            "<h2>"
+            + title
+            + "</h2>"
+            + "<h3>by "
+            + artist
+            + "</h3>"
+            + "<audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>"
+        )
+        return main_html + append_html + search_html

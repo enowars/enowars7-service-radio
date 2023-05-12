@@ -1,5 +1,6 @@
 import eyed3
 import os
+import html
 
 
 # Add MP3 file to playlist.
@@ -18,12 +19,10 @@ def get_metadata(file):
     if validate_mp3(audio_file, file):
         if audio_file.info is not None and audio_file.tag is not None:
             # Extract Artist, Title and length of song.
-            print(audio_file.info.time_secs)
-            print(audio_file.tag.artist)
-            print(audio_file.tag.title)
-            print(audio_file.tag.genre)
             # This radio station only allows techno!
-            if audio_file.tag.genre != "(18)Techno":
+            print(audio_file.tag.genre)
+            if audio_file.tag.genre.name == "Techno":
+                print(html.escape(audio_file.tag.title))
                 return [
                     audio_file.tag.artist,
                     audio_file.tag.title,
