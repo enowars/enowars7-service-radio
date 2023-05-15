@@ -17,17 +17,20 @@ def get_metadata(file):
         return []
     if validate_mp3(audio_file, file):
         if audio_file.info is not None and audio_file.tag is not None:
-            # Extract Artist, Title and length of song.
-            print(audio_file.info.time_secs)
-            print(audio_file.tag.artist)
-            print(audio_file.tag.title)
-            print(audio_file.tag.genre)
             # This radio station only allows techno!
-            if audio_file.tag.genre != "(18)Techno":
-                return [
-                    audio_file.tag.artist,
-                    audio_file.tag.title,
-                ]
+            if (
+                audio_file.tag.genre is not None
+                and audio_file.tag.genre.name == "Techno"
+            ):
+                # Extract Artist, Title and length of song.
+                if (
+                    audio_file.tag.artist is not None
+                    and audio_file.tag.title is not None
+                ):
+                    return [
+                        audio_file.tag.artist,
+                        audio_file.tag.title,
+                    ]
     # Return empty array if file is not in expected format
     # or does not contain expected informations.
     return []
