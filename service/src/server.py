@@ -1,9 +1,12 @@
-from flask import Flask, send_file, render_template, request
+from flask import Flask, send_file, request, session, redirect, url_for
 from flask_cors import CORS, cross_origin
 import validator
 import os
 import database_manager
 import html_container
+import secrets
+import authentication
+
 
 # Start app.
 app = Flask(__name__)
@@ -13,7 +16,37 @@ app.config["UPLOAD_FOLDER"] = "UPLOAD_FOLDER"
 
 database_manager.create_database()
 
+# Set a secret key for the app
+app.secret_key = "my-secret-key"
 
+# Configure the session cookie to be secure, HttpOnly, and SameSite
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
+
+
+@app.before_request
+def require_login():
+    # Check if the user is not logged in and the request is not to the login page
+    if session is {} or ("userid" not in session and request.endpoint != "login"):
+        # Redirect the user to the login page
+        valid_user = False
+        try:
+            valid_user = authentication.validate_user(session["userid"])
+        except:
+            return redirect(url_for("login"))
+        return valid_user
+
+
+@app.route("/login")
+def login():
+    # Set the username in the session
+    # Generate a random hex string of 32 bytes (i.e., 256 bits)
+    secret_value = secrets.token_hex(32)
+    session["userid"] = authentication.register_user(secret_value)
+    return redirect("http://localhost:5000/")
+
+
+# Home page
 @app.route("/", methods=["GET", "POST"])
 @cross_origin()
 def home():
@@ -49,9 +82,3 @@ def get_uploaded_file(file_path):
         return send_file("UPLOAD_FOLDER/" + file_path)
     else:
         return send_file("UPLOAD_FOLDER/Tomer.mp3")
-
-
-@app.route("/resources/image")
-@cross_origin()
-def get_icon():
-    return send_file("resources/thunderTechno.png")
