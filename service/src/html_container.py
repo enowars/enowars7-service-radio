@@ -208,7 +208,7 @@ def set_title_and_artist(title, artist):
 def show_search_result(artist, title):
     # If no artist found for the title return
     if artist is None:
-        return main_html + "</div>" + search_html
+        return main_html + "</div>" + search_html + "<p> Nothing found!" + script_html
     else:
         if len(artist) > 1:
             artist = ",".join(str(x[0]) for x in artist)
