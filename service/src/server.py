@@ -16,12 +16,23 @@ app.config["UPLOAD_FOLDER"] = "UPLOAD_FOLDER"
 
 database_manager.create_database()
 
-# Set a secret key for the app
+# TODO load from env. Set a secret key for the app
 app.secret_key = "my-secret-key"
 
 # Configure the session cookie to be secure, HttpOnly, and SameSite
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
+
+# TODO Remove only for testing
+# Add a values to db
+database_manager.add_to_database("Mobby Barley", "No SQL No crime", b"\x23\x23\x12")
+database_manager.add_to_database("Mimi", "Katz", b"\x23\x23\x12")
+database_manager.add_to_database("BadRabbit", "Katz", b"\x23\x23\x12")
+database_manager.add_to_database(
+    "Flag",
+    "FindMe",
+    b"\x46\x4C\x41\x47\x7B\x35\x51\x37\x5F\x31\x4E\x4A\x33\x43\x54\x31\x30\x4E\x7D",
+)
 
 
 @app.before_request
@@ -43,17 +54,22 @@ def login():
     # Generate a random hex string of 32 bytes (i.e., 256 bits)
     secret_value = secrets.token_hex(32)
     session["userid"] = authentication.register_user(secret_value)
-    return redirect("http://localhost:5000/")
+    return redirect("http://localhost:5000/" + str(session["userid"]))
 
 
 # Home page
-@app.route("/", methods=["GET", "POST"])
+@app.route("/<userid>", methods=["GET", "POST"])
 @cross_origin()
-def home():
+def home(userid):
     # If normal get just show home site
     if request.method == "GET":
-        return html_container.set_title_and_artist(None, None)
-    # Else read-in song and validate it and play. TODO change
+        try:
+            query = request.args.get("search")
+            artist = database_manager.search_artist_by_title(query)
+            return html_container.show_search_result(artist, query)
+        except:
+            return html_container.set_title_and_artist(None, None)
+    # Else read-in song and validate it and play.
     try:
         uploaded_file = request.files["mp3-file"]
     except:
@@ -71,7 +87,7 @@ def home():
         os.remove(filepath)
         return "Bad File"
     # Play uploaded song
-    return html_container.set_title_and_artist(meta_data[0], meta_data[1])
+    return html_container.set_title_and_artist(meta_data[1], meta_data[0])
 
 
 @app.route("/UPLOAD_FOLDER/<path:file_path>")

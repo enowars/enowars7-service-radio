@@ -136,20 +136,22 @@ main_html = """<!DOCTYPE html>
                 style="background-color: #4e4e4e; padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
                 <h1>Submit your Proposal.</h1>
                 <p> Please note we only accept Techno mp3 files!</p>
-                <form method="POST" action="/" enctype="multipart/form-data">
+                <form method="POST" enctype="multipart/form-data">
                     <input type="file" name="mp3-file" accept="audio/mp3">
                     <input type="submit" value="Upload">
                 </form>"""
 search_html = """
             <h1>Search through already accepted proposals</h1>
-            <form method="GET" action="/">
-                <input type="text" name="search" placeholder="Search for MP3 files...">
+            <form method="GET">
+                <input type="text" name="search" placeholder="Search for Song Titles...">
                 <input type="submit" value="Search">
             </form>
             <br>
             <br>
             <br>
             <h2>Search Results:</h2>
+"""
+script_html = """
         </div>
         <script>
             var video = document.getElementById("my-video");
@@ -189,7 +191,7 @@ search_html = """
 # Function that sets the pieces together and adds artist and title.
 def set_title_and_artist(title, artist):
     if artist is None or title is None:
-        return main_html + "</div>" + search_html
+        return main_html + "</div>" + search_html + script_html
     else:
         append_html = (
             "<h2>"
@@ -200,4 +202,25 @@ def set_title_and_artist(title, artist):
             + "</h3>"
             + "<audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>"
         )
-        return main_html + append_html + search_html
+        return main_html + append_html + search_html + script_html
+
+
+def show_search_result(artist, title):
+    # If no artist found for the title return
+    if artist is None:
+        return main_html + "</div>" + search_html
+    else:
+        if len(artist) > 1:
+            artist = ",".join(str(x[0]) for x in artist)
+        else:
+            artist = str(artist[0][0])
+        return (
+            main_html
+            + "</div>"
+            + search_html
+            + "<p>Found "
+            + str(title)
+            + " by "
+            + str(artist)
+            + script_html
+        )

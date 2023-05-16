@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 
 
 def create_database():
@@ -12,9 +13,7 @@ def create_database():
         id INTEGER PRIMARY KEY,
         artist TEXT NOT NULL,
         title TEXT NOT NULL,
-        binary BLOB NOT NULL,
-        owner TEXT NOT NULL
-    )
+        binary BLOB NOT NULL)
     """
     )
 
@@ -25,14 +24,16 @@ def create_database():
     conn.close()
 
 
-def add_to_database(artist, title, binary, user_id):
+def add_to_database(artist, title, binary):
     # Connect to the database.
-    conn = sqlite3.connect("music.db")
+    conn = sqlite3.connect("proposals.db")
 
+    # Generate a new ID and insert it into the database
+    new_id = uuid.uuid4()
     # Insert the mp3 file into the table.
     conn.execute(
-        "INSERT INTO music (artist, title, binary, user_id) VALUES (?, ?, ?, ?)",
-        (artist, title, binary, user_id),
+        "INSERT INTO music (artist, title, binary) VALUES (?, ?, ?)",
+        (artist, title, binary),
     )
 
     # Commit changes to the database.
@@ -42,20 +43,17 @@ def add_to_database(artist, title, binary, user_id):
     conn.close()
 
 
-def search_binary_by_title(title, user_id):
+def search_artist_by_title(title):
     # Connect to the database.
-    conn = sqlite3.connect("music.db")
+    conn = sqlite3.connect("proposals.db")
 
     # Execute the query to search for the song by its title.
-    cursor = conn.execute(
-        "SELECT binary FROM music WHERE title=? AND user_id=?", (title, user_id)
-    )
+    cursor = conn.execute("SELECT artist FROM music WHERE title LIKE '%" + title + "%'")
 
-    # Get the binary value of the song.
-    binary_value = cursor.fetchone()
-
+    # Get all artists who have a song title like that.
+    artist_value = cursor.fetchall()
     # Close the database connection.
     conn.close()
 
-    # Return the binary value of the song.
-    return binary_value[0] if binary_value else None
+    # Return artist if exists.
+    return artist_value if artist_value else None

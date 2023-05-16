@@ -4,7 +4,7 @@ import uuid
 
 def register_user(secret_key):
     # Connect to the SQLite database
-    conn = sqlite3.connect("example.db")
+    conn = sqlite3.connect("authentication.db")
 
     # Create a new table with two columns
     conn.execute(
@@ -34,7 +34,7 @@ def register_user(secret_key):
 
 
 def validate_user(id):
-    conn = sqlite3.connect("example.db")
+    conn = sqlite3.connect("authentication.db")
     # Retrieve the IDs from the database
 
     cursor = conn.execute("SELECT (?) FROM my_table", id)
