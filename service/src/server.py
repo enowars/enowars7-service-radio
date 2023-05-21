@@ -54,7 +54,7 @@ def login():
     # Generate a random hex string of 32 bytes (i.e., 256 bits)
     secret_value = secrets.token_hex(32)
     session["userid"] = authentication.register_user(secret_value)
-    return redirect("http://localhost:5000/" + str(session["userid"]))
+    return redirect("localhost:8000" + str(session["userid"]))
 
 
 # Home page
@@ -90,6 +90,7 @@ def home(userid):
     return html_container.set_title_and_artist(meta_data[1], meta_data[0])
 
 
+# Give access to uploaded file
 @app.route("/UPLOAD_FOLDER/<path:file_path>")
 @cross_origin()
 def get_uploaded_file(file_path):

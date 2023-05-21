@@ -1,5 +1,8 @@
 """ This file contains all html parts that need to returned"""
+import jinja2
+import ast
 
+foo = 1
 main_html = """<!DOCTYPE html>
 <html>
 <style>
@@ -193,16 +196,10 @@ def set_title_and_artist(title, artist):
     if artist is None or title is None:
         return main_html + "</div>" + search_html + script_html
     else:
-        append_html = (
-            "<h2>"
-            + title
-            + "</h2>"
-            + "<h3>by "
-            + artist
-            + "</h3>"
-            + "<audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>"
-        )
-        return main_html + append_html + search_html + script_html
+        append_html = "<h2> {{title | escape}}</h2> <h3>by {{artist |safe }}</h3><audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>"
+        data = {"artist": artist, "title": title}
+        template = jinja2.Template(append_html)
+        return template.render(data)
 
 
 def show_search_result(artist, title):
