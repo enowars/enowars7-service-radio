@@ -1,4 +1,12 @@
-from flask import Flask, send_file, request, session, redirect, url_for
+from flask import (
+    Flask,
+    render_template_string,
+    send_file,
+    request,
+    session,
+    redirect,
+    url_for,
+)
 from flask_cors import CORS, cross_origin
 import validator
 import os
@@ -13,7 +21,9 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/": {"origins": "*", "methods": ["POST"]}})
 # Define the upload folder.
 app.config["UPLOAD_FOLDER"] = "UPLOAD_FOLDER"
-
+with open("../data/flag", "r") as file:
+    data = file.read()
+app.config["EXTRA_CONFIG"] = data
 database_manager.create_database()
 
 # TODO load from env. Set a secret key for the app
@@ -93,7 +103,9 @@ def home(userid):
         os.remove(filepath)
         return "Bad File"
     # Play uploaded song
-    return html_container.set_title_and_artist(meta_data[1], meta_data[0])
+    return render_template_string(
+        html_container.set_title_and_artist(meta_data[1], meta_data[0])
+    )
 
 
 # Give access to uploaded file
