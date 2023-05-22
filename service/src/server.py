@@ -44,8 +44,14 @@ def require_login():
         try:
             valid_user = authentication.validate_user(session["userid"])
         except:
-            return redirect(url_for("login"))
+            # return redirect(url_for("login"))
+            return "PLEASE VISIT /login"
         return valid_user
+
+
+@app.route("/")
+def redirect_further():
+    return redirect(url_for("login"))
 
 
 @app.route("/login")
@@ -54,7 +60,7 @@ def login():
     # Generate a random hex string of 32 bytes (i.e., 256 bits)
     secret_value = secrets.token_hex(32)
     session["userid"] = authentication.register_user(secret_value)
-    return redirect("localhost:8000" + str(session["userid"]))
+    return redirect("http://localhost:8000" + str(session["userid"]))
 
 
 # Home page

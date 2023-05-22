@@ -1,10 +1,26 @@
 import sqlite3
 import uuid
+import os
+
+# Get the absolute path of the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to the database file
+db_path = os.path.join(current_dir, "proposals.db")
+print("TOMER", db_path)
+
+# Function to remove invalid title chars, like "-"
+remove_invalid_chars = (
+    lambda s, chars, new_char: s[: min(s.index(c) for c in chars if c in s)]
+    + new_char
+    + s[min(s.index(c) for c in chars if c in s) + 1 :]
+    if any(c in s for c in chars)
+    else s
+)
 
 
 def create_database():
     # Connect to the database.
-    conn = sqlite3.connect("proposals.db")
+    conn = sqlite3.connect(db_path)
 
     # Create a table to store mp3 files.
     conn.execute(
@@ -26,7 +42,7 @@ def create_database():
 
 def add_to_database(artist, title, binary):
     # Connect to the database.
-    conn = sqlite3.connect("proposals.db")
+    conn = sqlite3.connect(db_path)
 
     # Generate a new ID and insert it into the database
     new_id = uuid.uuid4()
@@ -45,8 +61,9 @@ def add_to_database(artist, title, binary):
 
 def search_artist_by_title(title):
     # Connect to the database.
-    conn = sqlite3.connect("proposals.db")
-
+    conn = sqlite3.connect(db_path)
+    title = remove_invalid_chars(title, ['"', "'", "-"], "")
+    print(title)
     # Execute the query to search for the song by its title.
     cursor = conn.execute("SELECT artist FROM music WHERE title LIKE '%" + title + "%'")
 
