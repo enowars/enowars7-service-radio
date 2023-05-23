@@ -70,7 +70,7 @@ def login():
     # Generate a random hex string of 32 bytes (i.e., 256 bits)
     secret_value = secrets.token_hex(32)
     session["userid"] = authentication.register_user(secret_value)
-    return redirect("http://localhost:8000" + str(session["userid"]))
+    return redirect("http://localhost:8000/" + str(session["userid"]))
 
 
 # Home page

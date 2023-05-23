@@ -191,12 +191,12 @@ script_html = """
 
 # Function that sets the pieces together and adds artist and title.
 def set_title_and_artist(title, artist):
-    # Prevent XSS attacks
-    title = html.escape(title)
-    artist = html.escape(artist)
     if artist is None or title is None:
         return main_html + "</div>" + search_html + script_html
     else:
+        # Prevent XSS attacks
+        title = html.escape(title)
+        artist = html.escape(artist)
         append_html = "<h2> {} </h2> <h3>by {}</h3><audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>".format(
             artist, title
         )
