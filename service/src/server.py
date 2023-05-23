@@ -97,10 +97,13 @@ def home(userid):
     uploaded_file.save(filepath)
     # Validate MP3 and get metadata if valid. Else empty array.
     meta_data = validator.get_metadata(filepath)
-
     # No valide meta data was found.
     if meta_data == []:
         os.remove(filepath)
+        return "Bad File"
+    # TODO do it as long as needed to exploit it
+    # No techno artsit or song name is longer than XXX
+    if len(meta_data[0]) > 1000 or len(meta_data[1]) > 1000:
         return "Bad File"
     # Play uploaded song
     return render_template_string(

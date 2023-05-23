@@ -20,7 +20,7 @@ remove_invalid_chars = (
 def create_database():
     # Connect to the database.
     conn = sqlite3.connect(db_path)
-
+    print("TOMER TOMER", db_path)
     # Create a table to store mp3 files.
     conn.execute(
         """

