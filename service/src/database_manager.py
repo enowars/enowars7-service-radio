@@ -6,7 +6,6 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct the path to the database file
 db_path = os.path.join(current_dir, "proposals.db")
-print("TOMER", db_path)
 
 # Function to remove invalid title chars, like "-"
 remove_invalid_chars = (
