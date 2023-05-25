@@ -12,6 +12,7 @@ import validator
 import os
 import database_manager
 import html_container
+from html_container import get_details
 import secrets
 import sqlite3
 from flask_login import (
@@ -215,7 +216,7 @@ def home():
         return "Bad File"
     # TODO do it as long as needed to exploit it
     # No techno artsit or song name is longer than XXX
-    if len(meta_data[0]) > 1000 or len(meta_data[1]) > 1000:
+    if len(meta_data[0]) > 20 or len(meta_data[1]) > 20:
         return "Bad File"
     # Play uploaded song
     return render_template_string(
