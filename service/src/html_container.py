@@ -1,6 +1,6 @@
 """ This file contains all html parts that need to returned"""
 import html
-import server
+
 
 main_html = """<!DOCTYPE html>
 <html>
@@ -207,11 +207,6 @@ login_html = """<!DOCTYPE html>
 """
 
 
-class Test(object):
-    def __repr__(self):
-        return "BANANANA"
-
-
 # Helper function for show details opens corresponding mp3 file
 def get_details(username):
     if username is None:
@@ -239,10 +234,11 @@ def set_title_and_artist(title, artist, username):
         return main_html + "</div>" + search_html + script_html
     else:
         # Prevent XSS attacks
-        # title = html.escape(title)
-        # artist = html.escape(artist)
+        title = html.escape(title)
+        artist = html.escape(artist)
         append_html = "<h2> {} </h2> <h3>by {}</h3><audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>".format(
-            artist, title
+            artist,
+            title,
         )
         show_detail_button_html = show_detail_button(username)
         return (
