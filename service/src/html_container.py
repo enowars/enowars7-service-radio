@@ -1,5 +1,6 @@
 """ This file contains all html parts that need to returned"""
 import html
+import server
 
 main_html = """<!DOCTYPE html>
 <html>
@@ -189,18 +190,69 @@ script_html = """
 </html>"""
 
 
+login_html = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Username" required><br>
+        <input type="password" name="password" placeholder="Password" required><br>
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+"""
+
+
+class Test(object):
+    def __repr__(self):
+        return "BANANANA"
+
+
+# Helper function for show details opens corresponding mp3 file
+def get_details(username):
+    if username is None:
+        return ""
+    # Open the file in binary mode.
+    with open("UPLOAD_FOLDER/" + username + ".mp3", "rb") as f:
+        binary_data = f.read()
+        file_size = len(binary_data)
+    return (binary_data, file_size)
+
+
+# Show detail button generates details about file
+def show_detail_button(username):
+    details = get_details(username)
+    binary_data = details[0]
+    file_size = details[1]
+    html_template = '<h1>Show MP3 File Details</h1> <button onclick="toggleDetails()">Show Details</button> <div id="details" style="display: none;"> <p>File Size: {} bytes</p><p>Binary Data: {}</p></div><script>function toggleDetails() {{var details = document.getElementById("details");details.style.display = details.style.display === "none" ? "block" : "none";}}</script>'
+
+    return html_template.format(file_size, binary_data)
+
+
 # Function that sets the pieces together and adds artist and title.
-def set_title_and_artist(title, artist):
+def set_title_and_artist(title, artist, username):
     if artist is None or title is None:
         return main_html + "</div>" + search_html + script_html
     else:
         # Prevent XSS attacks
-        title = html.escape(title)
-        artist = html.escape(artist)
+        # title = html.escape(title)
+        # artist = html.escape(artist)
         append_html = "<h2> {} </h2> <h3>by {}</h3><audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>".format(
             artist, title
         )
-        return main_html + "</div>" + append_html + search_html + script_html
+        show_detail_button_html = show_detail_button(username)
+        return (
+            main_html
+            + "</div>"
+            + append_html
+            + show_detail_button_html
+            + search_html
+            + script_html
+        )
 
 
 def show_search_result(artist, title):

@@ -11,17 +11,13 @@ RUN mkdir /data/
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 # Copy our service
 COPY src/ /service/
 # Change the working directory.
 WORKDIR /service/
-# Set the ownership and permissions for the database file
-RUN touch proposals.db
-RUN chown service:service proposals.db
-RUN chmod 664 proposals.db
+
 # Expose the service's port
 EXPOSE 8000
 # Run the service

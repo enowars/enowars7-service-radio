@@ -1,10 +1,16 @@
 import sqlite3
 import uuid
+import os
+
+# Get the absolute path of the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to the database file
+db_path = os.path.join(current_dir, "proposals.db")
 
 
 def register_user(secret_key):
     # Connect to the SQLite database
-    conn = sqlite3.connect("authentication.db")
+    conn = sqlite3.connect(db_path)
 
     # Create a new table with two columns
     conn.execute(
@@ -14,19 +20,11 @@ def register_user(secret_key):
     )
 
     # Generate a new ID and insert it into the database
-    new_id = uuid.uuid4()
-    conn.execute(
-        "INSERT INTO my_table (id, value) VALUES (?, ?)", (str(new_id), secret_key)
-    )
+    new_id = str(uuid.uuid4())
+    conn.execute("INSERT INTO my_table (id, value) VALUES (?, ?)", (new_id, secret_key))
 
     # Commit the changes to the database
     conn.commit()
-
-    # Retrieve the IDs from the database
-    cursor = conn.execute("SELECT id FROM my_table")
-    ids = [row[0] for row in cursor]
-
-    print(ids)
 
     # Close the database connection
     conn.close()
@@ -34,11 +32,16 @@ def register_user(secret_key):
 
 
 def validate_user(id):
-    conn = sqlite3.connect("authentication.db")
-    # Retrieve the IDs from the database
+    conn = sqlite3.connect(db_path)
 
-    cursor = conn.execute("SELECT (?) FROM my_table", id)
+    # Execute a query to retrieve the IDs from the database
+    cursor = conn.execute("SELECT (?) FROM my_table", (id))
     ids = [row[0] for row in cursor]
+
+    # Check if the provided ID exists in the database
     if id in ids:
         return True
+
+    # Close the database connection
+    conn.close()
     return False

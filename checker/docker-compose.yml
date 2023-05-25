@@ -1,0 +1,6 @@
+version: '3'
+services:
+  technoradio-checker:
+    build: .
+    ports:
+      - 52731:3031
