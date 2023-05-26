@@ -15,10 +15,14 @@ from enochecker3 import (
     PutflagCheckerTaskMessage,
 )
 from enochecker3.utils import FlagSearcher, assert_equals, assert_in
-import exploit
+import mp3_helper
 import utils
+import faker
 
-checker = Enochecker("t3chn0r4d10", 8000)
+
+FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
+checker = Enochecker("t3chn0r4d10", 8001)
+app = lambda: checker.app
 
 
 @checker.putflag(0)
@@ -28,14 +32,14 @@ async def putflag_test(
     db: ChainDB,
 ) -> None:
     # First Flag Connect to DB and add a flag
-    pass
+    return
 
 
 @checker.getflag(0)
 async def getflag_test(
     task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB
 ) -> None:
-    pass
+    return
 
 
 @checker.exploit(0)
@@ -61,20 +65,21 @@ async def putflag_test(
     # with open("flag.txt", "w") as text_file:
     #    text_file.write("%s" % task.flag)
     # TODO can I share memory with other docker?
-    pass
+    return
 
 
 @checker.getflag(1)
 async def getflag_test(
     task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB
 ) -> None:
-    pass
+    return
 
 
 @checker.exploit(1)
 async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
     # Creates a malicious mp3 file named "exploit.mp3"
-    exploit.create_malicious_file()
+    mp3_helper.create_mp3("exploit.mp3")
+    mp3_helper.create_malicious_file("exploit.mp3", "{{6*6}}", "{{config}}", "Techno")
     # TODO add logger
     logger = None
     # register
