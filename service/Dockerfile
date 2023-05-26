@@ -19,6 +19,6 @@ COPY src/ /service/
 WORKDIR /service/
 
 # Expose the service's port
-EXPOSE 8000
+EXPOSE 8001
 # Run the service
 ENTRYPOINT ["/entrypoint.sh"]

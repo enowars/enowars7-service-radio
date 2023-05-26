@@ -18,7 +18,7 @@ def handle_RequestError(err, msg):
 async def register_user_and_open_main_page(client: AsyncClient, logger: LoggerAdapter):
     try:
         # We expect to get a 302 and be redirected
-        response = await client.get("/login", follow_redirects=True)
+        response = await client.get("/register", follow_redirects=True)
     except Exception as e:
         handle_RequestError(e, "request error while registering")
     # Check if the request was redirected
