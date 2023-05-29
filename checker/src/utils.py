@@ -15,16 +15,43 @@ def handle_RequestError(err, msg):
     raise MumbleException(msg + ": " + str(err) + " " + type(err).__name__)
 
 
-async def register_user_and_open_main_page(client: AsyncClient, logger: LoggerAdapter):
+async def register_user_and_login(client: AsyncClient, username, password):
+    # Registration
     try:
         # We expect to get a 302 and be redirected
-        response = await client.get("/register", follow_redirects=True)
+        response = await client.post(
+            "/register",
+            data={"username": username, "password": password},
+            follow_redirects=True,
+        )
+
     except Exception as e:
         handle_RequestError(e, "request error while registering")
-    # Check if the request was redirected
-    if response.is_redirect:
-        return response.url
+    # Ensure registration was successful
+    assert_equals(response.status_code, 200, "registration failed")
+    # logger.info("Registration request got status: " + response.status_code)
+    return await login(client, username, password)
+
+
+async def login(client: AsyncClient, username, password):
+    # Login
+    try:
+        # We expect to get a 302 and be redirected
+        response = await client.post(
+            "/login",
+            data={"username": username, "password": password},
+            follow_redirects=True,
+        )
+    except Exception as e:
+        handle_RequestError(e, "request error while logging in")
     # We should get redirected else something failed
+    # Ensure registration was successful
+    assert_equals(response.status_code, 302, "login failed")
+    # logger.info("Login request got status: " + response.status_code)
+    if response.is_redirect:
+        # log success
+        # logger.info("Login was successful")
+        return response.url
     raise MumbleException("Redirection from login to main page failed")
 
 
