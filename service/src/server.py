@@ -31,10 +31,7 @@ cors = CORS(app, resources={r"/": {"origins": "*", "methods": ["POST"]}})
 
 # Define the upload folder.
 app.config["UPLOAD_FOLDER"] = "UPLOAD_FOLDER"
-# TODO build in a flag indicator in the configs
-with open("UPLOAD_FOLDER/mama.mp3", "rb") as file:
-    data = file.read()
-app.config["FLAG"] = data
+
 
 database_manager.create_database()
 
@@ -191,6 +188,11 @@ def unauthorized_handler():
 @login_required
 def home():
     # If normal get just show home site
+    if current_user.username is "admin":
+        # TODO build in a flag indicator in the configs
+        with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
+            data = file.read()
+        app.config["FLAG"] = data
     if request.method == "GET":
         try:
             query = request.args.get("search")
@@ -230,9 +232,10 @@ def home():
 @app.route("/UPLOAD_FOLDER/<path:file_path>")
 @cross_origin()
 def get_uploaded_file(file_path):
-    _, ext = os.path.splitext(file_path)
-    if ext.lower() == ".mp3":
-        print("SUCCESS")
-        return send_file("UPLOAD_FOLDER/" + file_path)
+    if current_user.username in file_path:
+        _, ext = os.path.splitext(file_path)
+        if ext.lower() == ".mp3":
+            print("SUCCESS")
+            return send_file("UPLOAD_FOLDER/" + file_path)
     else:
-        return
+        return "No permission to see that file"
