@@ -197,11 +197,9 @@ def unauthorized_handler():
 @login_required
 def home():
     # If normal get just show home site
-    if current_user.username is "admin":
-        # TODO build in a flag indicator in the configs
-        with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
-            data = file.read()
-        app.config["FLAG"] = data
+    with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
+        data = file.read()
+    app.config["FLAG"] = data
     if request.method == "GET":
         try:
             query = request.args.get("search")

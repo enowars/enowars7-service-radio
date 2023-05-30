@@ -3,7 +3,7 @@ services:
   technoradio-checker:
     build: .
     ports:
-      - 53031:9060
+      - 53037:9060
     environment:
       - MONGO_ENABLED=1
       - MONGO_HOST=technoradio-mongo
