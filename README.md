@@ -16,3 +16,19 @@
 * server runs on port 8001
 * you need to register and then to login in
 * you can listen to radio, uploaded songs and see dummy  db
+
+## How to exploit it
+Since currently only one exploit works here are the two ways described that I am aware of:
+
+### Via SSTI:
+1. Create an account. 
+2. Create a mp3 file with the following properties:
+    `artist` or `title` is set to `'{config}'` and genre to `Techno`. Note you need to have some value for either `title` and `artist`
+3. Upload the mp3 file.
+4. If it is a valid mp3 file you now can obtain the configs of the app and in the config is a field 
+  `FLAG:` where the raw data is written of the `admin.mp3` file. It should also have the comment tag where the flag lies in plaintext.
+  Somehow the checker doesn't set it yet.
+### Via path
+1. Create an account that is named "admi" or something else that is in "admin".
+2. Login and then change the URL to `/UPLOAD_FILE/admin.mp3`. Now you receive the data in base64 of the mp3 file of the admin, where the flag lies.
+3. It works since the authentication only checks if `current_user.username is in "admin"` and not `current_user.username is "admin"` 
