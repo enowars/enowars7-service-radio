@@ -236,9 +236,9 @@ def set_title_and_artist(title, artist, username):
         # Prevent XSS attacks
         title = html.escape(title)
         artist = html.escape(artist)
-        append_html = "<h2> {} </h2> <h3>by {}</h3><audio src=UPLOAD_FOLDER/tmp.mp3 autoplay controls></audio>".format(
-            artist,
-            title,
+        src = "UPLOAD_FOLDER/" + username + ".mp3"
+        append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
+            artist, title, src
         )
         show_detail_button_html = show_detail_button(username)
         return (

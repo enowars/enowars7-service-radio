@@ -23,7 +23,7 @@ from flask_login import (
     login_required,
     current_user,
 )
-
+import re
 
 # Start app.
 app = Flask(__name__)
@@ -76,6 +76,12 @@ def load_user(user_name):
         return None
 
 
+# Only allow usernames which are 30 letters long
+def validate_username(username):
+    pattern = r"^[a-zA-Z]{1,30}$"
+    return re.match(pattern, username) is not None
+
+
 @app.route("/")
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -121,6 +127,9 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        # validate username
+        if not validate_username(username):
+            return "Bad username"
 
         conn = sqlite3.connect("proposals.db")
 

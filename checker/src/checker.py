@@ -19,7 +19,8 @@ import mp3_helper
 import utils
 import faker
 from logging import LoggerAdapter
-
+import eyed3
+import base64
 
 FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("t3chn0r4d10", 8001)
@@ -41,12 +42,10 @@ async def putflag_test(
     mp3_helper.create_malicious_file("admin.mp3", "Flag", "FindMe", "Techno")
     url = utils.register_user_and_login("")
     # Try to upload mp3 to page
-    with open("admin", "rb+") as file:
-        # Write flag in last bytes
-        file.seek(-len(task.flag), 2)
-        new_bytes = task.flag
-        file.write(new_bytes)
-
+    with open("admin.mp3", "rb") as file:
+        audio = eyed3.load("admin.mp3")
+        audio.tag.comments.set("FLAG" + task.flag + "FLAGEND")
+        audio.tag.save()
         files = {"file": file}
         headers = {"Content-Type": "audio/mpeg"}
 
@@ -67,7 +66,8 @@ async def getflag_test(
     response = client.get(url.replace("home", "UPLOAD_FOLDER/admin.mp3"))
     # Find flag in response text
     assert_equals(response.status_code, 200, "Didn't find file")
-    if task.flag not in response.text:
+    decoded_mp3 = base64.b64decode(response.text)
+    if task.flag not in decoded_mp3:
         raise MumbleException("Flag receiving failed. Not sent by server")
 
 
