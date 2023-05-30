@@ -15,8 +15,9 @@ def handle_RequestError(err, msg):
     raise MumbleException(msg + ": " + str(err) + " " + type(err).__name__)
 
 
-async def register_user_and_login(client: AsyncClient, username, password):
+async def register_user_and_login(client: AsyncClient, username, password, logger):
     # Registration
+    logger.info("REGISTER")
     try:
         # We expect to get a 302 and be redirected
         response = await client.post(
@@ -26,33 +27,38 @@ async def register_user_and_login(client: AsyncClient, username, password):
         )
 
     except Exception as e:
+        logger.warning("REGISTRATION FAILED, Admin can't be created!")
         handle_RequestError(e, "request error while registering")
     # Ensure registration was successful
+    logger.info(
+        "Registration request was sent! For user " + username + " PW: " + str(password)
+    )
     assert_equals(response.status_code, 200, "registration failed")
-    # logger.info("Registration request got status: " + response.status_code)
-    return await login(client, username, password)
+    logger.info("Registration request got status: " + str(response.status_code))
+    response = await login(client, username, password, logger)
+    return response
 
 
-async def login(client: AsyncClient, username, password):
+async def login(client: AsyncClient, username, password, logger):
     # Login
     try:
         # We expect to get a 302 and be redirected
         response = await client.post(
             "/login",
-            data={"username": username, "password": password},
+            data={
+                "email": username,
+                "password": password,
+            },
             follow_redirects=True,
         )
     except Exception as e:
         handle_RequestError(e, "request error while logging in")
     # We should get redirected else something failed
     # Ensure registration was successful
-    assert_equals(response.status_code, 302, "login failed")
-    # logger.info("Login request got status: " + response.status_code)
-    if response.is_redirect:
-        # log success
-        # logger.info("Login was successful")
-        return response.url
-    raise MumbleException("Redirection from login to main page failed")
+    assert_equals(response.status_code, 200, "login failed")
+    logger.info("Login request got status: " + str(response.status_code))
+
+    return response
 
 
 def response_ok(response: Response, message: str, logger: LoggerAdapter) -> dict:
