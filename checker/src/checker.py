@@ -65,6 +65,7 @@ async def putflag_test(
     client: AsyncClient,
     db: ChainDB,
 ) -> None:
+    logger.info("START PUTFLAG")
     # Second file is in config which gets loaded from a file
     # Creates a malicious mp3 file named "exploit.mp3"
     mp3_helper.create_mp3("admin.mp3")
@@ -75,7 +76,9 @@ async def putflag_test(
     # Try to upload mp3 to page
     with open("admin.mp3", "rb") as file:
         audio = eyed3.load("admin.mp3")
-        audio.tag.comments.set("FLAG" + utils.encode_to_base64(task.flag) + "FLAGEND")
+        audio.tag.comments.set(
+            "FLAG" + utils.encode_to_base64(task.flag, logger) + "FLAGEND"
+        )
         audio.tag.save()
         files = {"mp3-file": file}
         logger.info("Tries to upload to home")
@@ -136,7 +139,7 @@ async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[
     if base_64_flag is None:
         logger.warning("NO FLAG in FILE, Flag b64 text was empty")
         raise MumbleException("NO Flag found")
-    flag_text = utils.decode_from_base64(base_64_flag)
+    flag_text = utils.decode_from_base64(base_64_flag, logger)
 
     if flag := searcher.search_flag(flag_text.strip()):
         logger.info("SUCCESSFULLY OBTAINED FLAG BY ATTACK: " + flag_text)
