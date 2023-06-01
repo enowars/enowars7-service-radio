@@ -8,10 +8,10 @@ WORKDIR /checker
 
 # Install all required dependencies for the checker.
 COPY src/requirements.txt /checker/requirements.txt
-COPY src/exploit.mp3 /checker/exploit.mp3
 RUN pip3 install -r requirements.txt
 
 # Copy all files into the container.
 COPY ./src/ /checker/
+#CMD chown -R checker:checker "/checker/"
 
 ENTRYPOINT [ "/home/checker/.local/bin/gunicorn", "-c", "gunicorn.conf.py", "checker:app" ]
