@@ -186,6 +186,7 @@ def register():
     )
 
 
+@login_required
 @app.route("/logout")
 def logout():
     logout_user()
@@ -244,6 +245,7 @@ def home():
 # Give access to uploaded file
 @app.route("/UPLOAD_FOLDER/<path:file_path>")
 @cross_origin()
+@login_required
 def get_uploaded_file(file_path):
     if current_user.username in file_path:
         _, ext = os.path.splitext(file_path)

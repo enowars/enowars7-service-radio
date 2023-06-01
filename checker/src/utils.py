@@ -7,27 +7,35 @@ from enochecker3.utils import assert_equals, assert_in
 import base64
 
 
-def decode_from_base64(encoded_string):
-    # Convert base64 string to bytes
-    decoded_bytes = base64.b64decode(encoded_string)
+def decode_from_base64(encoded_string, logger):
+    try:
+        # Convert base64 string to bytes
+        decoded_bytes = base64.b64decode(encoded_string)
 
-    # Convert bytes to string
-    decoded_string = decoded_bytes.decode()
+        # Convert bytes to string
+        decoded_string = decoded_bytes.decode()
 
-    return decoded_string
+        return decoded_string
+    except:
+        logger.warning("Decoding flag failed " + encoded_string)
+        raise MumbleException("Encoding error")
 
 
-def encode_to_base64(input_string):
+def encode_to_base64(input_string, logger):
     # Convert string to bytes
-    input_bytes = input_string.encode()
+    try:
+        input_bytes = input_string.encode()
 
-    # Encode bytes to base64
-    encoded_bytes = base64.b64encode(input_bytes)
+        # Encode bytes to base64
+        encoded_bytes = base64.b64encode(input_bytes)
 
-    # Convert base64 bytes to string
-    encoded_string = encoded_bytes.decode()
+        # Convert base64 bytes to string
+        encoded_string = encoded_bytes.decode()
 
-    return encoded_string
+        return encoded_string
+    except:
+        logger.warning("Encoding flag failed " + input_string)
+        raise MumbleException("Encoding error")
 
 
 # Find flag
@@ -90,6 +98,7 @@ async def login(client: AsyncClient, username, password, logger):
             follow_redirects=True,
         )
     except Exception as e:
+        logger.warning("LOGIN FAILED")
         handle_RequestError(e, "request error while logging in")
     # We should get redirected else something failed
     # Ensure registration was successful
@@ -97,26 +106,5 @@ async def login(client: AsyncClient, username, password, logger):
     if response.status_code != 200:
         logger.info("Response message was: " + response.text)
     assert_equals(response.status_code, 200, "login failed")
-
+    logger.info("Login succeeded for " + username)
     return response
-
-
-def response_ok(response: Response, message: str, logger: LoggerAdapter) -> dict:
-    try:
-        json = response.json()
-    except JSONDecodeError:
-        raise MumbleException(message)
-
-    assert_in("status", json, message + "response json contained no status code")
-
-    if "output" in json:
-        logger.info("Request returned output: " + json["output"])
-    assert_equals(
-        json["status"],
-        "ok",
-        message + " status was not ok: (was: " + json["status"] + ")",
-    )
-
-    assert_equals(response.status_code, 200, message + " status code was not 200")
-
-    return json
