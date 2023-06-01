@@ -64,7 +64,6 @@ def load_user(user_name):
     )
     conn = sqlite3.connect("proposals.db")
     cursor = conn.cursor()
-    print("NOT FOUND", user_name)
     cursor.execute("SELECT * FROM user WHERE username=?", (user_name,))
     user_data = cursor.fetchone()
     conn.close()
@@ -104,13 +103,12 @@ def login():
         cursor.execute("SELECT * FROM user WHERE username=?", (username,))
         user_data = cursor.fetchone()
         conn.close()
-        print(user_data[2], password)
-        if user_data and user_data[2] == password:
+        if user_data and len(user_data) == 3 and user_data[2] == password:
             user = User(user_data[0], user_data[1], user_data[2])
             login_user(user)
             return redirect(url_for("home"))
         else:
-            return "Invalid username or password"
+            return redirect(url_for("login")), 400
 
     return render_template_string(
         """
