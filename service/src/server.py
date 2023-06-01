@@ -79,15 +79,18 @@ def load_user(user_name):
 # Only allow usernames which are 30 letters long
 def validate_username(username):
     pattern = r"^[a-zA-Z]{1,30}$"
-    return re.match(pattern, username) is not None
+    return re.match(pattern, username) is not None and len(username) > 1
 
 
 @app.route("/")
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["email"]
-        password = request.form["password"]
+        try:
+            username = request.form["email"]
+            password = request.form["password"]
+        except:
+            return "invalid login try"
 
         conn = sqlite3.connect("proposals.db")
         # Create a new table with two columns
@@ -125,8 +128,11 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        try:
+            username = request.form["username"]
+            password = request.form["password"]
+        except:
+            return "invalid register data"
         # validate username
         if not validate_username(username):
             return "Bad username"
@@ -212,7 +218,7 @@ def home():
         uploaded_file = request.files["mp3-file"]
     except:
         print("ERROR wrong upload")
-        return "Bad File"
+        return "Bad File, no mp3-file", 404
     # Save the file to disk
     filename = current_user.username + ".mp3"
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
@@ -222,11 +228,11 @@ def home():
     # No valide meta data was found.
     if meta_data == []:
         os.remove(filepath)
-        return "Bad File"
+        return "Bad File, no artist or title or Techno song", 404
     # TODO do it as long as needed to exploit it
     # No techno artsit or song name is longer than XXX
     if len(meta_data[0]) > 20 or len(meta_data[1]) > 20:
-        return "Bad File"
+        return "Bad File, artist or/ and title to long, max 20 characters", 404
     # Play uploaded song
     return render_template_string(
         html_container.set_title_and_artist(
