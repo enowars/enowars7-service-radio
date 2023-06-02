@@ -123,6 +123,16 @@ def login():
     )
 
 
+@app.route("/playground", methods=["GET", "POST"])
+def playground():
+    return render_template_string(
+        "<h2> {} </h2> <h3>by {}</h3>".format(
+            "{% import 'os' as os%}",
+            "{{os.getcwd()}}",
+        )
+    )
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -230,7 +240,7 @@ def home():
         return "Bad File, no artist or title or Techno song", 404
     # TODO do it as long as needed to exploit it
     # No techno artsit or song name is longer than XXX
-    if len(meta_data[0]) > 20 or len(meta_data[1]) > 20:
+    if len(meta_data[0]) > 1000 or len(meta_data[1]) > 2000:
         return "Bad File, artist or/ and title to long, max 20 characters", 404
     # Play uploaded song
     return render_template_string(
@@ -245,7 +255,7 @@ def home():
 @cross_origin()
 @login_required
 def get_uploaded_file(file_path):
-    if current_user.username in file_path:
+    if file_path is current_user.username + "mp3":
         _, ext = os.path.splitext(file_path)
         if ext.lower() == ".mp3":
             print("SUCCESS")
