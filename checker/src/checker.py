@@ -105,12 +105,12 @@ async def getflag_test(
     # Find flag in response text
     assert_equals(response.status_code, 200, "Didn't find file")
     logger.info("SUCCESSFULLY REACHED MP3 file")
-    decoded_mp3 = base64.b64decode(response.text)
-
-    if task.flag not in decoded_mp3:
-        logger.warning("NO FLAG in FILE")
-        raise MumbleException("Flag receiving failed. Not sent by server")
-    logger.info("SUCCESSFULLY OBTAINED FLAG:" + task.flag)
+    # Find b64 flag
+    base_64_flag = utils.find_string_between_flags(response.text, True)
+    # Decode flag
+    flag_text = utils.decode_from_base64(base_64_flag, logger)
+    logger.info("Founded flag is " + flag_text)
+    assert_in(task.flag, flag_text, "Flag don't eqauls current flag")
 
 
 @checker.exploit(0)
@@ -135,36 +135,16 @@ async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[
             raise MumbleException("Upload failed")
 
     # Find flag in response text
-    base_64_flag = utils.find_string_between_flags(response.text)
+    base_64_flag = utils.find_string_between_flags(response.text, False)
     if base_64_flag is None:
         logger.warning("NO FLAG in FILE, Flag b64 text was empty")
         raise MumbleException("NO Flag found")
     flag_text = utils.decode_from_base64(base_64_flag, logger)
-
-    if flag := searcher.search_flag(flag_text.strip()):
+    if flag_text is None:
+        logger.warning("NO FLAG in FILE, Flag text was empty")
+        raise MumbleException("NO Flag found")
+    if flag := searcher.search_flag(flag_text):
         logger.info("SUCCESSFULLY OBTAINED FLAG BY ATTACK: " + flag_text)
         return flag
-    logger.warning("NO FLAG in FILE, decoding failed: " + flag_text)
-
-
-@checker.putflag(1)
-async def putflag_test(
-    task: PutflagCheckerTaskMessage,
-    client: AsyncClient,
-    db: ChainDB,
-) -> None:
-    # First Flag Connect to DB and add a flag
-    return
-
-
-@checker.getflag(1)
-async def getflag_test(
-    task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB
-) -> None:
-    return
-
-
-@checker.exploit(1)
-async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
-    # sql injection for now pass it
-    return
+    logger.warning("NOT the right FLAG in FILE, decoding failed: " + flag_text)
+    raise MumbleException("Wrong Flag found")
