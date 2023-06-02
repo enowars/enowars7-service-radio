@@ -261,4 +261,4 @@ def get_uploaded_file(file_path):
             print("SUCCESS")
             return send_file("UPLOAD_FOLDER/" + file_path)
     else:
-        return "No permission to see that file"
+        return "No permission to see that file", 401
