@@ -39,9 +39,13 @@ def encode_to_base64(input_string, logger):
 
 
 # Find flag
-def find_string_between_flags(input_string):
-    # Find the indices of the second occurrence of "FLAG" and the first occurrence of "FLAGEND"
-    flag_start = input_string.find("FLAG", input_string.find("FLAG") + 1)
+def find_string_between_flags(input_string, find_first: False):
+    # Find the indices of the first occurrence of "FLAG" and the first occurrence of "FLAGEND"
+    if find_first:
+        flag_start = input_string.find("FLAG")
+    else:
+        # Find the indices of the second occurrence of "FLAG" and the first occurrence of "FLAGEND"
+        flag_start = input_string.find("FLAG", input_string.find("FLAG") + 1)
     flag_end = input_string.find("FLAGEND")
 
     # Check if both flags are found

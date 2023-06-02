@@ -255,10 +255,13 @@ def home():
 @cross_origin()
 @login_required
 def get_uploaded_file(file_path):
-    if file_path is current_user.username + "mp3":
-        _, ext = os.path.splitext(file_path)
-        if ext.lower() == ".mp3":
-            print("SUCCESS")
-            return send_file("UPLOAD_FOLDER/" + file_path)
+    print("HERE ", file_path)
+    username, ext = os.path.splitext(file_path)
+    if ext.lower() == ".mp3" and username.lower() == current_user.username:
+        print("SUCCESS")
+        # If no file exists there is nothing to be send here
+        if not os.path.exists("UPLOAD_FOLDER/" + file_path):
+            return "No file", 400
+        return send_file("UPLOAD_FOLDER/" + file_path)
     else:
         return "No permission to see that file", 401
