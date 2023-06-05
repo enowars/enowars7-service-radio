@@ -110,7 +110,11 @@ async def getflag_test(
     # Decode flag
     flag_text = utils.decode_from_base64(base_64_flag, logger)
     logger.info("Founded flag is " + flag_text)
-    assert_in(task.flag, flag_text, "Flag don't eqauls current flag")
+    # assert_equals(task.flag, flag_text, "Flag don't eqauls current flag")
+    if task.flag not in flag_text:
+        logger.info("FLAG SHOULD BE " + task.flag)
+        raise MumbleException("Wrong flag value")
+    logger.info("Successfully got flag!")
 
 
 @checker.exploit(0)

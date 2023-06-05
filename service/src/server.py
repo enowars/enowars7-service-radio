@@ -11,8 +11,7 @@ from flask_cors import CORS, cross_origin
 import validator
 import os
 import database_manager
-import html_container
-from html_container import get_details
+from html_container import html_container
 import secrets
 import sqlite3
 from flask_login import (
@@ -211,6 +210,7 @@ def unauthorized_handler():
 @cross_origin()
 @login_required
 def home():
+    html_con = html_container()
     # If normal get just show home site
     with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
         data = file.read()
@@ -219,9 +219,9 @@ def home():
         try:
             query = request.args.get("search")
             artist = database_manager.search_artist_by_title(query)
-            return html_container.show_search_result(artist, query)
+            return html_con.show_search_result(artist, query)
         except:
-            return html_container.set_title_and_artist(None, None, None)
+            return html_con.set_title_and_artist(None, None, None)
     # Else read-in song and validate it and play.
     try:
         uploaded_file = request.files["mp3-file"]
@@ -244,7 +244,7 @@ def home():
         return "Bad File, artist or/ and title to long, max 20 characters", 404
     # Play uploaded song
     return render_template_string(
-        html_container.set_title_and_artist(
+        html_con.set_title_and_artist(
             meta_data[1], meta_data[0], current_user.username
         ).replace("#", "23")
     )
@@ -255,10 +255,8 @@ def home():
 @cross_origin()
 @login_required
 def get_uploaded_file(file_path):
-    print("HERE ", file_path)
     username, ext = os.path.splitext(file_path)
     if ext.lower() == ".mp3" and username.lower() == current_user.username:
-        print("SUCCESS")
         # If no file exists there is nothing to be send here
         if not os.path.exists("UPLOAD_FOLDER/" + file_path):
             return "No file", 400
