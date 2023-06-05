@@ -231,9 +231,9 @@ class html_container:
             return self.main_html + "</div>" + self.search_html + self.script_html
         else:
             # Prevent XSS attacks
-            # title = html.escape(title)
-            # artist = html.escape(artist)
-            print("MY artist:", artist)
+            title = html.escape(title)
+            artist = html.escape(artist)
+
             src = "UPLOAD_FOLDER/" + username + ".mp3"
             append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
                 artist, title, src

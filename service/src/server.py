@@ -211,10 +211,6 @@ def unauthorized_handler():
 @login_required
 def home():
     html_con = html_container()
-    # If normal get just show home site
-    with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
-        data = file.read()
-    app.config["FLAG"] = data
     if request.method == "GET":
         try:
             query = request.args.get("search")

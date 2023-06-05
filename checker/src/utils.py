@@ -95,7 +95,7 @@ async def register_user_and_login(client: AsyncClient, username, password, logge
 async def login(client: AsyncClient, username, password, logger):
     # Login
     try:
-        # We expect to get a 302 and be redirected
+        # We expect to get a 200 and be redirected
         response = await client.post(
             "/login",
             data={"email": username, "password": password},
@@ -107,7 +107,7 @@ async def login(client: AsyncClient, username, password, logger):
     # We should get redirected else something failed
     # Ensure registration was successful
     logger.info("Login request got status: " + str(response.status_code))
-    if response.status_code != 200:
+    if response.status_code > 399:
         logger.info("Response message was: " + response.text)
     assert_equals(response.status_code, 200, "login failed")
     logger.info("Login succeeded for " + username)
