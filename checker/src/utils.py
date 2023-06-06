@@ -7,7 +7,7 @@ from enochecker3.utils import assert_equals, assert_in
 import base64
 
 
-def decode_from_base64(encoded_string, logger):
+async def decode_from_base64(encoded_string, logger):
     try:
         # Convert base64 string to bytes
         decoded_bytes = base64.b64decode(encoded_string)
@@ -21,7 +21,7 @@ def decode_from_base64(encoded_string, logger):
         raise MumbleException("Encoding error")
 
 
-def encode_to_base64(input_string, logger):
+async def encode_to_base64(input_string, logger):
     # Convert string to bytes
     try:
         input_bytes = input_string.encode()
@@ -39,7 +39,7 @@ def encode_to_base64(input_string, logger):
 
 
 # Find flag
-def find_string_between_flags(input_string, find_first: False):
+async def find_string_between_flags(input_string, find_first: False):
     # Find the indices of the first occurrence of "FLAG" and the first occurrence of "FLAGEND"
     if find_first:
         flag_start = input_string.find("FLAG")

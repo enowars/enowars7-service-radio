@@ -1,8 +1,9 @@
 import eyed3
 import os
+import asyncio
 
 
-def create_mp3(filename, mp3_bytes=None):
+async def create_mp3(filename, mp3_bytes=None):
     # Don't recreate file if already exists
     if os.path.exists(filename):
         return
@@ -16,7 +17,7 @@ def create_mp3(filename, mp3_bytes=None):
 
 
 # Helper function for template injection exploit
-def create_modify_mp3(filepath, artist, title, genre):
+async def create_modify_mp3(filepath, artist, title, genre):
     audio_file = eyed3.load(filepath)
     audio_file.tag.artist = artist
     audio_file.tag.title = title
