@@ -211,10 +211,6 @@ def unauthorized_handler():
 @login_required
 def home():
     html_con = html_container()
-    # If normal get just show home site
-    with open("UPLOAD_FOLDER/admin.mp3", "rb") as file:
-        data = file.read()
-    app.config["FLAG"] = data
     if request.method == "GET":
         try:
             query = request.args.get("search")
@@ -246,7 +242,7 @@ def home():
     return render_template_string(
         html_con.set_title_and_artist(
             meta_data[1], meta_data[0], current_user.username
-        ).replace("#", "23")
+        ).replace("#", "")
     )
 
 

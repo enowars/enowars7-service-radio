@@ -206,6 +206,26 @@ class html_container:
     </body>
     </html>
     """
+    blocklist_ssti = [
+        "config",
+        "0",
+        ".os",
+        ".popen",
+        "sys",
+        ".read",
+        "2",
+        "4",
+        "6",
+        "7",
+        "5",
+        "8",
+        "SECRET_KEY",
+        "init_",
+        "globals_",
+        "#",
+        "/passwd",
+        "/",
+    ]
 
     # Helper function to get details
     def get_details(self, username):
@@ -231,9 +251,12 @@ class html_container:
             return self.main_html + "</div>" + self.search_html + self.script_html
         else:
             # Prevent XSS attacks
-            # title = html.escape(title)
-            # artist = html.escape(artist)
-            print("MY artist:", artist)
+            title = html.escape(title)
+            artist = html.escape(artist)
+            # Prevent SSTI attacks
+            for b in self.blocklist_ssti:
+                title = title.replace(b, "")
+                artist = artist.replace(b, "")
             src = "UPLOAD_FOLDER/" + username + ".mp3"
             append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
                 artist, title, src
