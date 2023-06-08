@@ -222,7 +222,6 @@ def home():
     try:
         uploaded_file = request.files["mp3-file"]
     except:
-        print("ERROR wrong upload")
         return "Bad File, no mp3-file", 404
     # Save the file to disk
     filename = current_user.username + ".mp3"
@@ -234,10 +233,9 @@ def home():
     if meta_data == []:
         os.remove(filepath)
         return "Bad File, no artist or title or Techno song", 404
-    # TODO do it as long as needed to exploit it
     # No techno artsit or song name is longer than XXX
-    if len(meta_data[0]) > 1000 or len(meta_data[1]) > 2000:
-        return "Bad File, artist or/ and title to long, max 20 characters", 404
+    if len(meta_data[0]) > 200 or len(meta_data[1]) > 200:
+        return "Bad File, artist or/ and title to long, max 200 characters", 404
     # Play uploaded song
     return render_template_string(
         html_con.set_title_and_artist(
