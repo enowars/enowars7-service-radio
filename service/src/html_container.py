@@ -222,15 +222,12 @@ class html_container:
         "SECRET_KEY",
         "init_",
         "globals_",
-        "#",
         "/passwd",
         "/",
     ]
 
     # Helper function to get details
     def get_details(self, username):
-        if username is None:
-            username = "admin"
         # Open the file in binary mode.
         with open("UPLOAD_FOLDER/" + username + ".mp3", "rb") as f:
             binary_data = f.read()
@@ -257,6 +254,8 @@ class html_container:
             for b in self.blocklist_ssti:
                 title = title.replace(b, "")
                 artist = artist.replace(b, "")
+            artist = artist.replace("+", "'")
+            title = title.replace("+", "'")
             src = "UPLOAD_FOLDER/" + username + ".mp3"
             append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
                 artist, title, src

