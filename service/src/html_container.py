@@ -1,4 +1,5 @@
 import html
+import jinja2
 
 
 class html_container:
@@ -224,7 +225,12 @@ class html_container:
         "globals_",
         "#",
         "/passwd",
-        "/",
+        # "/",
+        # "3",
+        # "_",
+        # "%",
+        # "9",
+        # "1",
     ]
 
     # Helper function to get details
@@ -258,18 +264,22 @@ class html_container:
                 title = title.replace(b, "")
                 artist = artist.replace(b, "")
             src = "UPLOAD_FOLDER/" + username + ".mp3"
-            append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
-                artist, title, src
-            )
+
+            append_html = "<h2> {{artist}} </h2> <h3>by {{title}}</h3><audio src={{src}} autoplay controls></audio>"
             show_detail_button_html = self.show_detail_button(username)
-            return (
-                self.main_html
-                + "</div>"
-                + append_html
-                + show_detail_button_html
-                + self.search_html
-                + self.script_html
+            output = (
+                jinja2.Environment()
+                .from_string(
+                    self.main_html
+                    + "</div>"
+                    + append_html
+                    + show_detail_button_html
+                    + self.search_html
+                    + self.script_html
+                )
+                .render(artist=artist, title=title, src=src)
             )
+            return output
 
     def show_search_result(self, artist, title):
         # If no artist found for the title return

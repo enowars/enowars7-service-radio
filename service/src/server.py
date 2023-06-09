@@ -238,10 +238,8 @@ def home():
         return "Bad File, artist or/ and title to long, max 200 characters", 404
     # Play uploaded song
     try:
-        return render_template_string(
-            html_con.set_title_and_artist(
-                meta_data[1], meta_data[0], current_user.username
-            ).replace("#", "")
+        return html_con.set_title_and_artist(
+            meta_data[1], meta_data[0], current_user.username
         )
     except:
         return (
