@@ -1,4 +1,5 @@
 import html
+import eyed3
 
 
 class html_container:
@@ -222,29 +223,32 @@ class html_container:
         "SECRET_KEY",
         "init_",
         "globals_",
-        "#",
         "/passwd",
         "/",
     ]
 
-    # Helper function to get details
-    def get_details(self, username):
-        if username is None:
-            username = "admin"
+    # Helper function to get comment
+    def get_mp3_comments(self, username):
         # Open the file in binary mode.
-        with open("UPLOAD_FOLDER/" + username + ".mp3", "rb") as f:
-            binary_data = f.read()
-            file_size = len(binary_data)
-        return (binary_data, file_size)
+        audio_file = eyed3.load("UPLOAD_FOLDER/" + username + ".mp3")
+        if (
+            audio_file is not None
+            and audio_file.tag is not None
+            and audio_file.tag.comments is not None
+        ):
+            comments = [comment.text for comment in audio_file.tag.comments]
+            comment = "".join(comments)
+        else:
+            comment = ""
+        return comment
 
     # Show details
     def show_detail_button(self, username):
-        details = self.get_details(username)
-        binary_data = details[0]
-        file_size = details[1]
-        html_template = '<h1>Show MP3 File Details</h1> <button onclick="toggleDetails()">Show Details</button> <div id="details" style="display: none;"> <p>File Size: {} bytes</p><p>Binary Data: {}</p></div><script>function toggleDetails() {{var details = document.getElementById("details");details.style.display = details.style.display === "none" ? "block" : "none";}}</script>'
+        comment = self.get_mp3_comments(username)
+        # TODO add more Tag infos
+        html_template = '<h1>Show MP3 File Details</h1> <button onclick="toggleDetails()">Show Details</button> <div id="details" style="display: none;"> <p>MP3 Comment: {}</p></div><script>function toggleDetails() {{var details = document.getElementById("details");details.style.display = details.style.display === "none" ? "block" : "none";}}</script>'
 
-        return html_template.format(file_size, binary_data)
+        return html_template.format(comment)
 
     def set_title_and_artist(self, title, artist, username):
         if artist is None or title is None:
@@ -257,6 +261,8 @@ class html_container:
             for b in self.blocklist_ssti:
                 title = title.replace(b, "")
                 artist = artist.replace(b, "")
+            artist = artist.replace("+", "'")
+            title = title.replace("+", "'")
             src = "UPLOAD_FOLDER/" + username + ".mp3"
             append_html = "<h2> {} </h2> <h3>by {}</h3><audio src={} autoplay controls></audio>".format(
                 artist, title, src
