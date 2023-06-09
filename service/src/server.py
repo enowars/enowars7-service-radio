@@ -224,7 +224,7 @@ def home():
         os.remove(filepath)
         return "Bad File, no artist or title or Techno song", 404
     # No techno artsit or song name is longer than
-    if len(meta_data[0]) > 100 or len(meta_data[1]) > 200:
+    if len(meta_data[0]) > 100 or len(meta_data[1]) > 100:
         return "Bad File, artist or/ and title to long, max 200 characters", 404
     # Play uploaded song
     return render_template_string(
