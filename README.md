@@ -4,12 +4,14 @@
 * Listen to radio
 * Upload a mp3 file
 * Search already accepted proposals
+* Write in your profile bio/ festivals you visited
+* Read history of Thunderwave Radio Station
 
 
 
 ## Vulnerability
-* SSTI --> In config is flag, flag can also obtained by creating a user like "ad" and then to go to "/UPLOAD_FOLDER/admin.mp3" since it only checks if username is in file name of the file you want to obtain. Since admin.mp3 contains flag you can read it that way too, it is stored in the comment tag of the audio file
-* SQL Injection --> one of the entries in DB contains flag (NOT YET)
+* SSTI --> In config is flag, flag can also obtained by creating a user like "ad" and then to go to "/UPLOAD_FOLDER/admin.mp3" since it only checks if username is in file name of the file you want to obtain. Since admin.mp3 contains flag you can read it that way too, it is stored in the comment tag of the audio file (intermiedate)
+* Bypass profile control mechanism to obtain flag (beginner)
 
 ## Run service
 * docker-compose up --build
@@ -23,12 +25,11 @@ Since currently only one exploit works here are the two ways described that I am
 ### Via SSTI:
 1. Create an account. 
 2. Create a mp3 file with the following properties:
-    `artist` or `title` is set to `'{config}'` and genre to `Techno`. Note you need to have some value for either `title` and `artist`
+    `artist` or `title` is set to `''` and genre to `Techno`. Note you need to have some value for either `title` and `artist`
 3. Upload the mp3 file.
 4. If it is a valid mp3 file you now can obtain the configs of the app and in the config is a field 
   `FLAG:` where the raw data is written of the `admin.mp3` file. It should also have the comment tag where the flag lies in plaintext.
   Somehow the checker doesn't set it yet.
 ### Via path
-1. Create an account that is named "admi" or something else that is in "admin".
-2. Login and then change the URL to `/UPLOAD_FILE/admin.mp3`. Now you receive the data in base64 of the mp3 file of the admin, where the flag lies.
-3. It works since the authentication only checks if `current_user.username is in "admin"` and not `current_user.username is "admin"` 
+1. Create an account with the same name as the flagstore account
+2. 
