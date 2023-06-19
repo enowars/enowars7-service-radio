@@ -23,6 +23,8 @@ from flask_login import (
     current_user,
 )
 import re
+import datetime
+import schedule
 
 # Start app.
 app = Flask(__name__)
@@ -157,7 +159,7 @@ def register():
             )
             conn.commit()
             conn.close()
-
+            save_profile_to_database(username, "", "")
             return 'Registration successful. Please <a href="/login">login</a> to access the app.'
 
     return render_template_string(
@@ -225,26 +227,60 @@ def home():
         return "Bad File, no artist or title or Techno song", 404
     # No techno artsit or song name is longer than
     if len(meta_data[0]) > 100 or len(meta_data[1]) > 100:
-        return "Bad File, artist or/ and title to long, max 200 characters", 404
+        return "Bad File, artist or/ and title to long, max 100 characters", 404
     # Play uploaded song
+
     return render_template_string(
         html_con.set_title_and_artist(
             meta_data[1], meta_data[0], current_user.username
         ).replace("#", "")
     )
-    """try:
+
+
+# User profile page
+@app.route("/about_<username>", methods=["GET", "POST"])
+@cross_origin()
+@login_required
+def profile(username):
+    if request.method == "GET":
+        if current_user.username.lower() != username.lower():
+            return "Not authorized", 401
+        # load profile
+        data = get_profile_from_database(username)
         return render_template_string(
-            html_con.set_title_and_artist(
-                meta_data[1], meta_data[0], current_user.username
-            ).replace("#", "")
+            html_container.profile_html,
+            username=current_user.username,
+            bio=data[0],
+            festivals=data[1],
         )
-    except:
-        return (
-            html_con.set_title_and_artist(
-                "DUMMY_TITLE", "DUMMY_ARTIST", current_user.username
-            ),
-            400,
-        )"""
+    if request.method == "POST":
+        if current_user.username != username:
+            return "Not authorized", 401
+        bio = request.form["bio"]
+        festivals = request.form["festivals"]
+        save_profile_to_database(current_user.username, bio, festivals)
+        # load profile
+        data = get_profile_from_database(username)
+        return render_template_string(
+            html_container.profile_html,
+            username=current_user.username,
+            bio=data[0],
+            festivals=data[1],
+        )
+
+
+# Redirect to profile page
+@app.route("/aboutme")
+@login_required
+def redirect_to_own_profile():
+    return redirect(f"about_{current_user.username}")
+
+
+# Show history of Thunderwave radio
+@app.route("/history")
+@login_required
+def history():
+    return html_container.history_html
 
 
 # Give access to uploaded file
@@ -260,3 +296,67 @@ def get_uploaded_file(file_path):
         return send_file("UPLOAD_FOLDER/" + file_path)
     else:
         return "No permission to see that file", 401
+
+
+# Profile page set function
+def save_profile_to_database(username, bio, festivals):
+    conn = sqlite3.connect("proposals.db")
+    c = conn.cursor()
+
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS profiles (username TEXT, bio TEXT, festivals TEXT)"
+    )
+    # Check if the profile already exists in the database
+    c.execute("SELECT username FROM profiles WHERE username=?", (username,))
+    existing_username = c.fetchone()
+
+    if existing_username:
+        # If the profile exists, update the existing row
+        c.execute(
+            "UPDATE profiles SET bio=?, festivals=? WHERE username=?",
+            (bio, festivals, username),
+        )
+    else:
+        # If the profile doesn't exist, insert a new row
+        c.execute(
+            "INSERT INTO profiles (username, bio, festivals) VALUES (?, ?, ?)",
+            (username, bio, festivals),
+        )
+
+    conn.commit()
+    conn.close()
+
+
+# Profile page get function
+def get_profile_from_database(username):
+    conn = sqlite3.connect("proposals.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT bio, festivals FROM profiles WHERE username=?", (username,))
+    user_data = cursor.fetchone()
+    conn.close()
+    return user_data
+
+
+# Delete files older than 10 min
+def delete_old_files(folder_path):
+    current_time = datetime.datetime.now()
+    ten_minutes_ago = current_time - datetime.timedelta(minutes=10)
+
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        if os.path.isfile(file_path):
+            file_modified_time = datetime.datetime.fromtimestamp(
+                os.path.getmtime(file_path)
+            )
+            if file_modified_time > ten_minutes_ago:
+                os.remove(file_path)
+                print(f"Deleted file: {filename}")
+
+
+def job():
+    folder_path = "UPLOAD_FOLDER"
+    delete_old_files(folder_path)
+
+
+schedule.every(5).minutes.do(job)

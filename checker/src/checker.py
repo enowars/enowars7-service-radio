@@ -29,13 +29,9 @@ checker = Enochecker("t3chn0r4d10", 8001)
 app = lambda: checker.app
 
 
-def setup_logger(log_file):
+def setup_logger():
     logger = logging.getLogger("technoradio_logger")
     logger.setLevel(logging.DEBUG)
-
-    # Create a file handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
 
     # Create a console handler
     console_handler = logging.StreamHandler()
@@ -45,17 +41,15 @@ def setup_logger(log_file):
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
 
-    # Add the handlers to the logger
-    logger.addHandler(file_handler)
+    # Add the handler to the logger
     logger.addHandler(console_handler)
 
     return logger
 
 
-logger = setup_logger("logs.txt")
+logger = setup_logger()
 
 
 @checker.putflag(0)
@@ -143,7 +137,7 @@ async def exploit_test(
     await mp3_helper.create_modify_mp3(
         exploit_file,
         "Evil",
-        "{{ [].__class__.__mro__[1].__subclasses__()[-39].get_mp3_comments(html_con, +"
+        "{{ [].__class__.__mro__[1].__subclasses__()[-42].get_comments(html_con, +"
         + filename.replace(".mp3", "+")
         + ") }}",
         "Techno",
