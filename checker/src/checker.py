@@ -11,9 +11,11 @@ from enochecker3 import (
     ChainDB,
     Enochecker,
     GetflagCheckerTaskMessage,
+    GetnoiseCheckerTaskMessage,
     MumbleException,
     PutflagCheckerTaskMessage,
     ExploitCheckerTaskMessage,
+    PutnoiseCheckerTaskMessage,
 )
 from enochecker3.utils import FlagSearcher, assert_equals, assert_in
 import mp3_helper
@@ -109,7 +111,7 @@ async def getflag_test(
     # Find flag in response text
     if response.status_code != 200:
         logger.info("Lookup failed " + response.status_code)
-        raise MumbleException("Lookup of file failed")
+        raise MumbleException("Lookup failed")
     logger.info("SUCCESSFULLY REACHED MP3 file")
     # Find b64 flag
     base_64_flag = await utils.find_string_between_flags(response.text, True)
@@ -237,7 +239,7 @@ async def getflag_test2(
     # Find flag in response text
     if response.status_code != 200:
         logger.info("Lookup failed " + response.status_code)
-        raise MumbleException("Lookup of file failed")
+        raise MumbleException("Lookup failed")
     logger.info("SUCCESSFULLY REACHED Profile page")
     if task.flag not in response.text:
         logger.info("FLAG SHOULD BE " + task.flag)
@@ -273,3 +275,135 @@ async def exploit_test2(
         return flag
     logger.warning("NOT the right FLAG in Profile")
     raise MumbleException("Wrong Flag found")
+
+
+################ PUTNOISE, GETNOISE, HAVOC SECTION ###################
+def generate_random_string(min_length, max_length):
+    # Define the characters to choose from
+    characters = string.ascii_letters + string.digits
+
+    # Generate a random length within the specified range
+    length = random.randint(min_length, max_length)
+
+    # Generate the random string
+    random_string = "".join(random.choice(characters) for _ in range(length))
+
+    return random_string
+
+
+@checker.putnoise(0)
+async def putnoise_file(
+    task: PutnoiseCheckerTaskMessage, client: AsyncClient, db: ChainDB
+) -> Optional[str]:
+    # Create account
+    logger.info("START PUTNOISE")
+    length = 16
+    letters = string.ascii_letters
+    username = "".join(random.choice(letters) for _ in range(length))
+    password = str(secrets.token_hex(16))
+    artist = "".join(random.choice(letters) for _ in range(length))
+    title = "".join(random.choice(letters) for _ in range(length))
+    filename = username + ".mp3"
+    # Creates a malicious mp3 file named "exploit.mp3"
+    await mp3_helper.create_mp3(filename)
+    await mp3_helper.create_modify_mp3(filename, artist, title, "Techno")
+    logger.info("Trying to login...")
+    # Register if it is first round otherwise login in
+    response = await utils.register_user_and_login(client, username, password, logger)
+    logger.info("Admin LOGGED IN")
+    # Try to upload mp3 to page
+    with open(filename, "rb") as file:
+        audio = eyed3.load(filename)
+        comment = generate_random_string(1, 16)
+        audio.tag.comments.set(comment)
+        audio.tag.save()
+        files = {"mp3-file": file}
+        logger.info("Tries to upload to home")
+        response = await client.post("/home", files=files)
+
+        if response.status_code == 200:
+            logger.info("UPLOADED FLAG Successfully: ")
+        else:
+            logger.warning("UPLOADING FLAG FAILED!!! " + str(response.status_code))
+            raise MumbleException("Upload failed")
+        await db.set("info", (username, password, comment))
+        # attack info
+        return f"{filename}"
+
+
+@checker.getnoise(0)
+async def getnoise_file(
+    task: GetnoiseCheckerTaskMessage, client: AsyncClient, db: ChainDB
+) -> Optional[str]:
+    # login and check that file exists
+    logger.info("START get noise")
+    try:
+        username, password, comment = await db.get("info")
+    except KeyError:
+        raise MumbleException("Login failed")
+    await utils.login(client, username, password, logger)
+    logger.info("Try getting noise mp3 file")
+    response = await client.get("/UPLOAD_FOLDER/" + username + ".mp3")
+    # Find comment in response text
+    if response.status_code != 200:
+        logger.info("Lookup failed " + response.status_code)
+        raise MumbleException("Lookup failed")
+    logger.info("SUCCESSFULLY REACHED MP3 file")
+
+    if comment not in response.text:
+        logger.info("FLAG SHOULD BE " + comment)
+        raise MumbleException("Wrong flag value")
+    logger.info("Successfully got comment!")
+
+
+@checker.putnoise(1)
+async def putnoise_bio(
+    task: PutnoiseCheckerTaskMessage, client: AsyncClient, db: ChainDB
+) -> Optional[str]:
+    logger.info("START PUTNoise")
+    length = 24
+    letters = string.ascii_letters
+    username = "".join(random.choice(letters) for _ in range(length))
+    password = str(secrets.token_hex(16))
+    logger.info("Trying to login...")
+    # Register if it is first round otherwise login in
+    response = await utils.register_user_and_login(client, username, password, logger)
+    logger.info("NOISE LOGGED IN")
+    # Write in "festivals" textarea the flag
+    bio = generate_random_string(1, 200)
+    festivals = generate_random_string(1, 200)
+    data = {
+        "bio": bio,
+        "festivals": festivals,
+    }
+    response = await client.post(
+        "/about_" + username,
+        data=data,
+    )
+    if response.status_code != 200:
+        raise MumbleException("Failed to store")
+    await db.set("info", (username, password, bio + "," + festivals))
+
+
+@checker.getnoise(1)
+async def getnoise_bio(
+    task: GetnoiseCheckerTaskMessage, client: AsyncClient, db: ChainDB
+) -> Optional[str]:
+    # login and check that file exists
+    logger.info("START get noise , try to loggin")
+    try:
+        username, password, infos = await db.get("info")
+    except KeyError:
+        raise MumbleException("flag missing")
+    await utils.login(client, username, password, logger)
+    logger.info("Try to get to profile page")
+    response = await client.get("/about_" + username)
+    # Find flag in response text
+    if response.status_code != 200:
+        logger.info("Lookup failed " + response.status_code)
+        raise MumbleException("Lookup failed")
+    logger.info("SUCCESSFULLY REACHED Profile page")
+    bio, fests = infos.split(",")
+    if bio not in response.text and fests not in response.text:
+        raise MumbleException("Wrong profile value")
+    logger.info("Successfully got noise!")

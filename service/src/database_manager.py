@@ -64,7 +64,8 @@ def search_artist_by_title(title):
     title = remove_invalid_chars(title, ['"', "'", "-"], "")
     print(title)
     # Execute the query to search for the song by its title.
-    cursor = conn.execute("SELECT artist FROM music WHERE title LIKE '%" + title + "%'")
+    query = "SELECT artist FROM music WHERE title LIKE ?"
+    cursor = conn.execute(query, ("%" + title + "%",))
 
     # Get all artists who have a song title like that.
     artist_value = cursor.fetchall()
