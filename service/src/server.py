@@ -189,7 +189,7 @@ def register():
 @app.route("/logout")
 def logout():
     logout_user()
-    return "Logged out"
+    return "Logged out. Go back to <a href='/login'>login</a> page"
 
 
 @login_manager.unauthorized_handler
