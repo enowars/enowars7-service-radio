@@ -87,7 +87,6 @@ def validate_mp3_header(file_path):
         # Print the MP3 header information.
         print("Version: {}.{}".format(version_major, version_minor))
         print("Flags: {:08b}".format(flags))
-        # TODO control size of file
         return True
 
 
