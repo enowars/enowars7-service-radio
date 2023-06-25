@@ -297,7 +297,7 @@ class html_container:
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            position: relative;
+            position: initial;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -459,15 +459,25 @@ class html_container:
 
         <body>
             <div>
-                <p>Thunderwave Radio Station. To listen to our livestream please click the button</p>
-                <br>
-                <br>
-                <div class="cycle" style="text-align: center;"></div>
-                <button id="play-btn" onclick="playOrPause()">Play</button>
-                <video id="my-video" width="640" height="360">
-                    <source src="https://regiocast.streamabc.net/regc-90s90stechno2195701-mp3-192-2408420">
-                </video>
-                <br>
+                <style>
+                    .flex-container {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                </style>
+
+                <div class="flex-container">
+                    <p>Thunderwave Radio Station. To listen to our livestream please click the button</p>
+                    <br>
+                    <div class="cycle" style="text-align: center; display: flex;"></div>
+                    <br>
+                    <button id="play-btn" onclick="playOrPause()">Play</button>
+                    <video id="my-video" width="100" height="100">
+                        <source src="https://regiocast.streamabc.net/regc-90s90stechno2195701-mp3-192-2408420">
+                    </video>
+                </div>
                 <div
                     style="background-color: #4e4e4e; padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
                     <h1>Submit your Proposal.</h1>
