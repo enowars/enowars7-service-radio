@@ -20,7 +20,6 @@ remove_invalid_chars = (
 def create_database():
     # Connect to the database.
     conn = sqlite3.connect(db_path)
-    print("TOMER TOMER", db_path)
     # Create a table to store mp3 files.
     conn.execute(
         """
@@ -34,7 +33,6 @@ def create_database():
 
     # Commit changes to the database.
     conn.commit()
-    print("create db")
     # Close the database connection.
     conn.close()
 
@@ -62,7 +60,6 @@ def search_artist_by_title(title):
     # Connect to the database.
     conn = sqlite3.connect(db_path)
     title = remove_invalid_chars(title, ['"', "'", "-"], "")
-    print(title)
     # Execute the query to search for the song by its title.
     query = "SELECT artist FROM music WHERE title LIKE ?"
     cursor = conn.execute(query, ("%" + title + "%",))
