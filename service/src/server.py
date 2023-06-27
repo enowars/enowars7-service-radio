@@ -341,7 +341,7 @@ def get_profile_from_database(username):
 # Delete files older than 10 min
 def delete_old_files(folder_path):
     current_time = datetime.datetime.now()
-    ten_minutes_ago = current_time - datetime.timedelta(minutes=10)
+    ten_minutes_ago = current_time - datetime.timedelta(minutes=30)
 
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
