@@ -1,5 +1,6 @@
 import html
 import eyed3
+import markupsafe
 
 
 class html_container:
@@ -608,6 +609,8 @@ class html_container:
             # Prevent XSS attacks
             title = html.escape(title)
             artist = html.escape(artist)
+            title = markupsafe.escape(title)
+            artist = markupsafe.escape(artist)
             # Prevent SSTI attacks
             for b in self.blocklist_ssti:
                 title = title.replace(b, "")

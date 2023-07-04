@@ -243,7 +243,7 @@ def home():
 @login_required
 def profile(username):
     if request.method == "GET":
-        if current_user.username.lower() != username.lower():
+        if current_user.username != username:
             return "Not authorized", 401
         # load profile
         data = get_profile_from_database(username)
