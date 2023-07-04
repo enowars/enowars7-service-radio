@@ -8,3 +8,12 @@ services:
       - ./data/:/data:rw
     ports:
       - "8001:5000"
+    expose:
+      - 5000
+  nginx:
+    build: ./nginx
+    container_name: techno_radio_nginx
+    ports:
+      - "5555:5555"
+    depends_on:
+      - t3chn0r4d10
