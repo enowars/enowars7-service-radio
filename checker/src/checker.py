@@ -25,10 +25,16 @@ import logging
 import eyed3
 import string
 import random
+from fake_useragent import UserAgent
 
 FAKER = faker.Faker(faker.config.AVAILABLE_LOCALES)
 checker = Enochecker("t3chn0r4d10", 8001)
 app = lambda: checker.app
+# Create a UserAgent instance
+ua = UserAgent()
+
+# Generate a pool of user agents
+user_agents = [ua.random for _ in range(5)]  # Generate 10 user agents
 
 
 def setup_logger():
@@ -304,12 +310,16 @@ async def putnoise_file(
     artist = "".join(random.choice(letters) for _ in range(length))
     title = "".join(random.choice(letters) for _ in range(length))
     filename = username + ".mp3"
-    # Creates a malicious mp3 file named "exploit.mp3"
+    # Creates a mp3 file named random
     await mp3_helper.create_mp3(filename)
     await mp3_helper.create_modify_mp3(filename, artist, title, "Techno")
     logger.info("Trying to login...")
+    # Generate a random user agent
+    headers = {"User-Agent": random.choice(user_agents)}
     # Register if it is first round otherwise login in
-    response = await utils.register_user_and_login(client, username, password, logger)
+    response = await utils.register_user_and_login(
+        client, username, password, logger, headers
+    )
     logger.info("Admin LOGGED IN")
     # Try to upload mp3 to page
     with open(filename, "rb") as file:
@@ -319,7 +329,7 @@ async def putnoise_file(
         audio.tag.save()
         files = {"mp3-file": file}
         logger.info("Tries to upload to home")
-        response = await client.post("/home", files=files)
+        response = await client.post("/home", files=files, headers=headers)
 
         if response.status_code == 200:
             logger.info("UPLOADED FLAG Successfully: ")
@@ -337,11 +347,13 @@ async def getnoise_file(
 ) -> Optional[str]:
     # login and check that file exists
     logger.info("START get noise")
+    # Pick a random user agent
+    headers = {"User-Agent": random.choice(user_agents)}
     try:
         username, password, comment = await db.get("info")
     except KeyError:
         raise MumbleException("Login failed")
-    await utils.login(client, username, password, logger)
+    await utils.login(client, username, password, logger, headers)
     logger.info("Try getting noise mp3 file")
     response = await client.get("/UPLOAD_FOLDER/" + username + ".mp3")
     # Find comment in response text
@@ -366,8 +378,12 @@ async def putnoise_bio(
     username = "".join(random.choice(letters) for _ in range(length))
     password = str(secrets.token_hex(16))
     logger.info("Trying to login...")
+    # Pick a random user agent
+    headers = {"User-Agent": random.choice(user_agents)}
     # Register if it is first round otherwise login in
-    response = await utils.register_user_and_login(client, username, password, logger)
+    response = await utils.register_user_and_login(
+        client, username, password, logger, headers
+    )
     logger.info("NOISE LOGGED IN")
     # Write in "festivals" textarea the flag
     bio = generate_random_string(1, 200)
@@ -376,10 +392,7 @@ async def putnoise_bio(
         "bio": bio,
         "festivals": festivals,
     }
-    response = await client.post(
-        "/about_" + username,
-        data=data,
-    )
+    response = await client.post("/about_" + username, data=data, headers=headers)
     if response.status_code != 200:
         raise MumbleException("Failed to store")
     await db.set("info", (username, password, bio + "," + festivals))
@@ -391,13 +404,15 @@ async def getnoise_bio(
 ) -> Optional[str]:
     # login and check that file exists
     logger.info("START get noise , try to loggin")
+    # Pick a random user agent
+    headers = {"User-Agent": random.choice(user_agents)}
     try:
         username, password, infos = await db.get("info")
     except KeyError:
         raise MumbleException("flag missing")
-    await utils.login(client, username, password, logger)
+    await utils.login(client, username, password, logger, headers)
     logger.info("Try to get to profile page")
-    response = await client.get("/about_" + username)
+    response = await client.get("/about_" + username, headers=headers)
     # Find flag in response text
     if response.status_code != 200:
         logger.info("Lookup failed " + response.status_code)

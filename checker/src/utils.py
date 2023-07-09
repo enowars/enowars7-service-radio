@@ -68,16 +68,26 @@ def handle_RequestError(err, msg):
     raise MumbleException(msg + ": " + str(err) + " " + type(err).__name__)
 
 
-async def register_user_and_login(client: AsyncClient, username, password, logger):
+async def register_user_and_login(
+    client: AsyncClient, username, password, logger, header=None
+):
     # Registration
     logger.info("REGISTER")
     try:
-        # We expect to get a 200 and be redirected
-        response = await client.post(
-            "/register",
-            data={"username": username, "password": password},
-            follow_redirects=True,
-        )
+        if header is not None:
+            response = await client.post(
+                "/register",
+                data={"username": username, "password": password},
+                follow_redirects=True,
+                headers=header,
+            )
+        else:
+            # We expect to get a 200 and be redirected
+            response = await client.post(
+                "/register",
+                data={"username": username, "password": password},
+                follow_redirects=True,
+            )
 
     except Exception as e:
         logger.warning("REGISTRATION FAILED, Admin can't be created!")
@@ -88,19 +98,27 @@ async def register_user_and_login(client: AsyncClient, username, password, logge
     )
     assert_equals(response.status_code, 200, "registration failed")
     logger.info("Registration request got status: " + str(response.status_code))
-    response = await login(client, username, password, logger)
+    response = await login(client, username, password, logger, header)
     return response
 
 
-async def login(client: AsyncClient, username, password, logger):
+async def login(client: AsyncClient, username, password, logger, header=None):
     # Login
     try:
-        # We expect to get a 200 and be redirected
-        response = await client.post(
-            "/login",
-            data={"email": username, "password": password},
-            follow_redirects=True,
-        )
+        if header is not None:
+            response = await client.post(
+                "/login",
+                data={"email": username, "password": password},
+                follow_redirects=True,
+                headers=header,
+            )
+        else:
+            # We expect to get a 200 and be redirected
+            response = await client.post(
+                "/login",
+                data={"email": username, "password": password},
+                follow_redirects=True,
+            )
     except Exception as e:
         logger.warning("LOGIN FAILED")
         handle_RequestError(e, "request error while logging in")
