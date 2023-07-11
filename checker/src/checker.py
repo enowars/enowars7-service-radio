@@ -34,7 +34,7 @@ app = lambda: checker.app
 ua = UserAgent()
 
 # Generate a pool of user agents
-user_agents = [ua.random for _ in range(5)]  # Generate 10 user agents
+user_agents = [ua.random for _ in range(5)]  # Generate 5 user agents
 user_agents.append("python-requests/2.30.0")
 user_agents.append("python-httpx/0.23.3")
 
