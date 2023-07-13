@@ -23,8 +23,3 @@ async def create_modify_mp3(filepath, artist, title, genre):
     audio_file.tag.title = title
     audio_file.tag.genre = genre
     audio_file.tag.save()
-
-
-# SQL Injection
-# FindMe'' UNION SELECT binary FROM music ---
-# create_malicious_file()

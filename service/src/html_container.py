@@ -11,6 +11,9 @@ class html_container:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thunderwave Radio</title>
+     <link
+    rel="stylesheet"
+    href="https://unpkg.com/98.css">
     <style>
         body {
             background-color: #333;
@@ -146,6 +149,9 @@ class html_container:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
+     <link
+    rel="stylesheet"
+    href="https://unpkg.com/98.css">
     <style>
         body {
             background-color: #000;
@@ -541,15 +547,81 @@ class html_container:
         <title>Login</title>
     </head>
     <body>
+    <link
+    rel="stylesheet"
+    href="https://unpkg.com/98.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #171717;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background-color: #4e4e4e;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 48px;
+        }
+    </style>
         <h1>Login</h1>
-        <form action="/login" method="POST">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <input type="submit" value="Login">
+       <form action='login' method='POST'>
+                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='password' name='password' id='password' placeholder='password'/>
+                <input type='submit' name='submit' value= 'Login'/>
+               </form>
+        <p> You don't have an account yet? Click here:</p>
+        <a href="/register">Sign up</a>
+    </body>
+    </html>
+    """
+    register_html = """<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Registration</title>
+    </head>
+    <link
+  rel="stylesheet"
+  href="https://unpkg.com/98.css">
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #171717;
+            color: #fff;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background-color: #4e4e4e;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 48px;
+        }
+    </style>
+    <body>
+        <h2>Registration</h2>
+        <form action="/register" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Register">
         </form>
     </body>
     </html>
     """
+
     blocklist_ssti = [
         "config",
         "0",
@@ -559,7 +631,7 @@ class html_container:
         ".read",
         "9",
         "3",
-        "6",
+        "4",
         "7",
         "5",
         "8",
@@ -572,6 +644,7 @@ class html_container:
         ".read",
         ".init",
         ".globals",
+        "2",
     ]
 
     # Helper function to get comment
