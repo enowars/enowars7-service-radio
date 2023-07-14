@@ -16,6 +16,9 @@ class html_container:
     href="https://unpkg.com/98.css">
     <style>
         body {
+            background-color: #f2f2f2;
+            background-image: url('/static/greenmesh.gif');
+            background-repeat: repeat;
             background-color: #333;
             color: #fff;
             font-family: Arial, sans-serif;
@@ -70,7 +73,6 @@ class html_container:
         }
 
         .navbar {
-            background-color: #4e4e4e;
             padding: 20px;
         }
 
@@ -154,6 +156,9 @@ class html_container:
     href="https://unpkg.com/98.css">
     <style>
         body {
+           background-color: #f2f2f2;
+            background-image: url('/static/greenmesh.gif');
+            background-repeat: repeat;
             background-color: #000;
             color: #ccc;
             font-family: Arial, sans-serif;
@@ -351,22 +356,15 @@ class html_container:
         }
 
         body {
+            background-color: #f2f2f2;
+            background-image: url('/static/greenmesh.gif');
+            background-repeat: repeat;
             font-family: Arial, sans-serif;
-            background-color: #171717;
             color: #fff;
             text-align: center;
         }
 
-        header {
-            padding: 20px;
-            background-color: #4e4e4e;
-            text-align: center;
-        }
 
-        h1 {
-            margin: 0;
-            font-size: 48px;
-        }
 
         .container {
             display: flex;
@@ -384,10 +382,6 @@ class html_container:
             margin: 20px;
         }
 
-        h2 {
-            margin-top: 0;
-            font-size: 24px;
-        }
 
         audio {
             width: 100%;
@@ -396,11 +390,6 @@ class html_container:
             display: block;
         }
 
-        footer {
-            background-color: #4e4e4e;
-            padding: 20px;
-            text-align: center;
-        }
     </style>
     <!DOCTYPE html>
     <html lang="en">
@@ -410,6 +399,9 @@ class html_container:
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Thunderwave Radio</title>
         <link rel="stylesheet" href="styles.css">
+        <link
+        rel="stylesheet"
+        href="https://unpkg.com/98.css">
     </head>
         <style>
         body {
@@ -459,8 +451,8 @@ class html_container:
         </nav>
     </header>
     <body>
-        <header>
-            <h1>Thunderwave Radio </h1>
+        <header style="padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
+            <h1 >Thunderwave Radio </h1>
         </header>
 
         <body>
@@ -485,7 +477,7 @@ class html_container:
                     </video>
                 </div>
                 <div
-                    style="background-color: #4e4e4e; padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
+                    style="padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
                     <h1>Submit your Proposal.</h1>
                     <p> Please note we only accept Techno mp3 files!</p>
                     <form method="POST" enctype="multipart/form-data">
@@ -494,15 +486,17 @@ class html_container:
                     </form>"""
 
     search_html = """
-                <h1>Search through already accepted proposals</h1>
-                <form method="GET">
-                    <input type="text" name="search" placeholder="Search for Song Titles...">
-                    <input type="submit" value="Search">
-                </form>
-                <br>
-                <br>
-                <br>
-                <h2>Search Results:</h2>
+                <div style="padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;">
+                    <h1>Search through already accepted proposals</h1>
+                    <form method="GET">
+                        <input type="text" name="search" placeholder="Search for Song Titles...">
+                        <input type="submit" value="Search">
+                    </form>
+                    <br>
+                    <br>
+                    <br>
+                    <h2>Search Results:</h2>
+                </div>
     """
 
     script_html = """
@@ -552,6 +546,9 @@ class html_container:
     href="https://unpkg.com/98.css">
     <style>
         body {
+           background-color: #f2f2f2;
+            background-image: url('/static/greenmesh.gif');
+            background-repeat: repeat;
             font-family: Arial, sans-serif;
             background-color: #171717;
             color: #fff;
@@ -568,6 +565,16 @@ class html_container:
             margin: 0;
             font-size: 48px;
         }
+        a.signup-link {
+            display: inline-block;
+            font-size: 24px;
+            color: orange;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        p.signup-message {
+            color: orange;
+        }
     </style>
         <h1>Login</h1>
        <form action='login' method='POST'>
@@ -575,8 +582,8 @@ class html_container:
                 <input type='password' name='password' id='password' placeholder='password'/>
                 <input type='submit' name='submit' value= 'Login'/>
                </form>
-        <p> You don't have an account yet? Click here:</p>
-        <a href="/register">Sign up</a>
+        <p class="signup-message"> You don't have an account yet? Click here:</p>
+        <a href="/register" class="signup-link">Sign up</a>
     </body>
     </html>
     """
@@ -590,8 +597,10 @@ class html_container:
   href="https://unpkg.com/98.css">
   <style>
         body {
+            background-color: #f2f2f2;
+            background-image: url('/static/greenmesh.gif');
+            background-repeat: repeat;
             font-family: Arial, sans-serif;
-            background-color: #171717;
             color: #fff;
             text-align: center;
         }
@@ -708,7 +717,7 @@ class html_container:
                 self.main_html
                 + "</div>"
                 + self.search_html
-                + "<p> Nothing found!"
+                + "<div style='padding: 20px; box-shadow: 0px 0px 10px #666666; font-family: Arial, sans-serif; font-size: 16px; color: #FFFFFF; text-align: center;'><p> Nothing found!</p></div>"
                 + self.script_html
             )
         else:
