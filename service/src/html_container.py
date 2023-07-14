@@ -220,10 +220,6 @@ class html_container:
             padding: 0;
         }
 
-        .navbar {
-            background-color: #4e4e4e;
-            padding: 20px;
-        }
 
         .navbar ul {
             list-style-type: none;
@@ -407,11 +403,6 @@ class html_container:
         body {
             margin: 0;
             padding: 0;
-        }
-
-        .navbar {
-            background-color: #4e4e4e;
-            padding: 20px;
         }
 
         .navbar ul {
