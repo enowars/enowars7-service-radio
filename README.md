@@ -32,4 +32,7 @@ Since currently only one exploit works here are the two ways described that I am
   Somehow the checker doesn't set it yet.
 ### Via path
 1. Create an account with the same name as the flagstore account
-2. 
+2. Go to "about me" and change url to match the profile you want to see (e.g. `about_FlagStoreUsername`).
+3. The Flag can there be found in the festivals section.
+
+
