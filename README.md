@@ -28,7 +28,6 @@
 3. Upload the mp3 file.
 4. If it is a valid mp3 file you now can obtain the configs of the app and in the config is a field 
   `FLAG:` where the raw data is written of the `<FLAGUSERNAME>.mp3` file. It should also have the comment tag where the flag lies in plaintext.
-  Somehow the checker doesn't set it yet.
 ### Via path
 1. Create an account with the same name as the flagstore account
 2. Go to "about me" and change url to match the profile you want to see (e.g. `about_FlagStoreUsername`).
