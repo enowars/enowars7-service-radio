@@ -104,7 +104,7 @@ That way you can see profiles of others if you have the same name as them just i
 4. Know you can see the profile of the flag owner and read the flag from the festivals field.
 
 Demo video:
-![](../demo_vuln2.mp4)
+![](demo_vuln2.mp4)
 
 ### Fix
 - Remove the `lower() != ... .lower()` in the username check
