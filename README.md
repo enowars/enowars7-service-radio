@@ -21,16 +21,7 @@
 * you can listen to radio, uploaded songs and see dummy  db
 
 
-### Via SSTI:
-1. Create an account. 
-2. Create a mp3 file with the following properties:
-    `artist` or `title` is set to `''` and genre to `Techno`. Note you need to have some value for either `title` and `artist`
-3. Upload the mp3 file.
-4. If it is a valid mp3 file you now can obtain the configs of the app and in the config is a field 
-  `FLAG:` where the raw data is written of the `<FLAGUSERNAME>.mp3` file. It should also have the comment tag where the flag lies in plaintext.
-### Via path
-1. Create an account with the same name as the flagstore account
-2. Go to "about me" and change url to match the profile you want to see (e.g. `about_FlagStoreUsername`).
-3. The Flag can there be found in the festivals section.
-
-
+## Infrastructure
+* nginx in front of gunicorn (gevent)
+* flask application (Web app)
+* automatic clean up, deleting all files that are older than 30 minutes
