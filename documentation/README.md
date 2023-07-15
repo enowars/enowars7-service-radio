@@ -102,6 +102,11 @@ That way you can see profiles of others if you have the same name as them just i
 2. Login in and click on about me in the navbar. This opens your profile page.
 3. Change url in urlbar from `/about_exampleName` to `/about_ExAmPleName` and reload page.
 4. Know you can see the profile of the flag owner and read the flag from the festivals field.
+
+Demo video:
+<video width="320" height="240" controls>
+  <source src="../demo_vuln2.mp4" type="video/mp4">
+</video>
 ### Fix
 - Remove the `lower() != ... .lower()` in the username check
 ---
