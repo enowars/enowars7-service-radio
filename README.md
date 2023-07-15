@@ -22,6 +22,6 @@
 
 
 ## Infrastructure
-* nginx in front of gunicorn (gevent)
+* nginx (Port 5555) in front of gunicorn (gevent)
 * flask application (Web app)
 * automatic clean up, deleting all files that are older than 30 minutes
