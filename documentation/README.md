@@ -103,8 +103,7 @@ That way you can see profiles of others if you have the same name as them just i
 3. Change url in urlbar from `/about_exampleName` to `/about_ExAmPleName` and reload page.
 4. Know you can see the profile of the flag owner and read the flag from the festivals field.
 
-Demo video:
-![](demo_vuln2.mp4)
+![Demo video vulnerability 2](https://github.com/enowars/enowars7-service-radio/blob/main/documentation/demo_vuln2.mp4)
 
 ### Fix
 - Remove the `lower() != ... .lower()` in the username check
