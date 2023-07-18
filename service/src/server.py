@@ -331,4 +331,4 @@ def run_scheduler():
 
 
 # Start the scheduler
-run_scheduler()
+# run_scheduler()
