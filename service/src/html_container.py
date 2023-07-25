@@ -631,7 +631,6 @@ class html_container:
         ".read",
         "9",
         "3",
-        "4",
         "7",
         "5",
         "8",
@@ -644,7 +643,7 @@ class html_container:
         ".read",
         ".init",
         ".globals",
-        "2",
+        "6",
     ]
 
     # Helper function to get comment
