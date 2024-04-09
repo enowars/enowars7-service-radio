@@ -21,6 +21,8 @@ cleaner () {
     done
 }
 DATA_DIR="/service/UPLOAD_FOLDER"
+mkdir -p $DATA_DIR
+chown -R service:service $DATA_DIR
 exec su -s /bin/sh -c 'gunicorn --config gunicorn.conf.py server:app' &
 # Launch our service as user 'service' using Gunicorn with the configuration file
 cleaner "$DATA_DIR"

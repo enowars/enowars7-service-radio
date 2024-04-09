@@ -5,3 +5,4 @@ Flask_Login==0.6.2
 gunicorn
 gevent
 schedule
+werkzeug==2.3.8
